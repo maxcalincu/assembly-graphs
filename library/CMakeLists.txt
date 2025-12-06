@@ -1,11 +1,10 @@
-add_library(assembly-graphs)
+add_library(assembly-graphs INTERFACE)
+
+target_compile_features(assembly-graphs INTERFACE cxx_std_20)
 
 add_subdirectory(core)
-add_subdirectory(graphics)
 
 target_link_libraries(assembly-graphs
-    PUBLIC
+    INTERFACE
         core
-    PRIVATE
-        graphics
 )

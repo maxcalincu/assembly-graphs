@@ -1,8 +1,7 @@
 #pragma once
-#include <array>
 #include <map>
 #include <set>
-#include <stdexcept>
+#include <iostream>
 
 
 template<typename SAG>
@@ -21,9 +20,13 @@ class TVertex {
     using Edge = TEdge<SAG>;
     friend SAG;
     friend Edge;
-
     size_t vertex_id, graph_id;
 public:
+    friend std::ostream& operator<<(std::ostream& os, const TVertex& vertex) {
+        os << "Vertex(" << vertex.graph_id << ", " << vertex.vertex_id << ")";
+        return os;
+    }
+
     TVertex(size_t graph_id, size_t vertex_id);
     bool operator<(const TVertex& other) const;
     bool operator==(const TVertex& other) const;
@@ -83,6 +86,11 @@ private:
     Polarity orientation;
 
 public:
+    friend std::ostream& operator<<(std::ostream& os, const TEdge& edge) {
+        os << "Edge(" << edge.p_endpoint << ", " << edge.n_endpoint << ", " << edge.tier << ", " << edge.orientation << ")";
+        return os;
+    }
+
     TEdge(const Vertex& p_endpoint, const Vertex& n_endpoint, Tier tier, Polarity orientation);
     bool operator==(const TEdge& other) const;
     bool HasEndpoint(const Vertex& vertex) const;
@@ -93,6 +101,7 @@ public:
     Vertex GetHead() const;
     Vertex GetTail() const;
     void OrientTowards(const Vertex& head);
+    void OrientTowards(Polarity orientation);
     Polarity GetOrientation() const;
     void SwitchOrientation();
     bool IsLoop() const;
@@ -162,6 +171,11 @@ void TEdge<SAG>::OrientTowards(const Vertex& head) {
 }
 
 template<typename SAG>
+void TEdge<SAG>::OrientTowards(Polarity orientation_) {
+    orientation = orientation_;
+}
+
+template<typename SAG>
 TEdge<SAG> TEdge<SAG>::CreateCopy(const std::map<Vertex, Vertex>& bijection) const {
     return TEdge<SAG>(bijection.at(p_endpoint), bijection.at(n_endpoint), tier, orientation);
 }
@@ -179,6 +193,11 @@ class TECyc {
 
     bool GetIndex(const Edge& incident_edge, size_t& index) const;
 public:
+    friend std::ostream& operator<<(std::ostream& os, const TECyc& ecyc) {
+        os << "ECyc(" << ecyc.central_vertex << ", {" << ecyc.incident_edges[0] << ", " << ecyc.incident_edges[2] 
+                                            << "}, {" << ecyc.incident_edges[1] << ", " << ecyc.incident_edges[3] << ")";
+        return os;
+    }
     void ReplaceEdge(const Edge& before, const Edge& after);
     TECyc(const Vertex& central_vertex, const std::pair<Edge, Edge>& transversal_a, const std::pair<Edge, Edge>&  transversal_b);
     TECyc(const Vertex& central_vertex, const std::array<Edge, 4> incident_edges);
@@ -260,7 +279,7 @@ TECyc<SAG>::TECyc(const Vertex& central_vertex_, const std::array<Edge, 4> incid
         incident_edges[1] == incident_edges[3] ||
         incident_edges[2] == incident_edges[3]
     ) {
-        throw std::runtime_error("TECyc construct: equal edges with same tiers passed");
+        throw std::runtime_error("TECyc construct: equal edges passed");
     }
     if ((incident_edges[0].GetTail() == incident_edges[1].GetTail() && incident_edges[0].GetTier() == incident_edges[1].GetTier() && !incident_edges[0].IsLoop()) ||
         (incident_edges[0].GetTail() == incident_edges[2].GetTail() && incident_edges[0].GetTier() == incident_edges[2].GetTier() && !incident_edges[0].IsLoop()) ||
@@ -269,7 +288,7 @@ TECyc<SAG>::TECyc(const Vertex& central_vertex_, const std::array<Edge, 4> incid
         (incident_edges[1].GetTail() == incident_edges[3].GetTail() && incident_edges[1].GetTier() == incident_edges[3].GetTier() && !incident_edges[1].IsLoop()) ||
         (incident_edges[2].GetTail() == incident_edges[3].GetTail() && incident_edges[2].GetTier() == incident_edges[3].GetTier() && !incident_edges[2].IsLoop())
     ) {
-        throw std::runtime_error("TECyc construct: equal edges with same tiers passed");
+        throw std::runtime_error("TECyc construct: symmetrical edges with same tiers passed");
     }
 };
 
@@ -277,7 +296,7 @@ template<typename SAG>
 Tier TECyc<SAG>::MEXTier(const Vertex& incident_vertex) const {
     std::set<Tier> existing_tiers;
     for (auto& edge : incident_edges) {
-        if (edge.GetOther(central_vertex) == incident_vertex) {
+        if (edge.GetOther(central_vertex) == incident_vertex && !edge.IsLoop()) {
             existing_tiers.insert(edge.tier);
         }
     }

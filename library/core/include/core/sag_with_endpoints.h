@@ -28,7 +28,7 @@ public:
 
 private:
     Tier MEXTier(const Vertex& central_vertex, const Vertex& incident_vertex) const;
-    Edge CreateEdge(const Vertex& vertex, const Vertex& other_vertex, Edge original_edge);
+    Edge CreateEdge(const Vertex& vertex, const Vertex& other_vertex, Edge original_edge, Tier tier, Polarity orientation);
     Vertex CreateVertex();
 
     std::map<Vertex, ECyc> cyclic_order;

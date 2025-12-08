@@ -10,3 +10,5 @@ target_include_directories(core PUBLIC
 
 add_subdirectory(src/basics)
 add_subdirectory(src/sag_with_endpoints)
+add_subdirectory(src/paths)
+add_subdirectory(src/generators)

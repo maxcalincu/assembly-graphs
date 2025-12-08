@@ -84,35 +84,44 @@ TVertex<SAGWithEndpoints> SAGWithEndpoints::CreateVertex() {
     return Vertex(graph_id, vertex_counter++);
 }
 
-TVertex<SAGWithEndpoints> SAGWithEndpoints::InsertVertex(const Edge& edge_a_, const Edge& edge_b_) {
-    Edge edge_a = edge_a_, edge_b = edge_b_;
-    Vertex new_vertex = CreateVertex();
-    Vertex x = edge_a.p_endpoint, y = edge_a.n_endpoint, z = edge_b.p_endpoint, w = edge_b.n_endpoint;
-    edge_a.OrientTowards(Positive);
-    Edge xo = CreateEdge(x, new_vertex, edge_a);
-    edge_a.OrientTowards(Negative);
-    Edge oy = CreateEdge(y, new_vertex, edge_a);
-    auto opposite_edge_b = edge_b;
-    opposite_edge_b.SwitchOrientation();
-    if (edge_a == edge_b || edge_a == opposite_edge_b) {
-        Edge n_oo(new_vertex, new_vertex, Tier::A, Negative);
-        Edge p_oo(new_vertex, new_vertex, Tier::A, Positive);
-        cyclic_order.emplace(new_vertex, ECyc(new_vertex, std::make_pair(xo, p_oo), std::make_pair(n_oo, oy)));
+TVertex<SAGWithEndpoints> SAGWithEndpoints::InsertVertex(const Edge& edge_a, const Edge& edge_b) {
+    Edge xy = edge_a, zw = edge_b;
+    Vertex o = CreateVertex();
+    
+    xy.OrientTowards(LastEdge.GetOrientation());
+    zw.OrientTowards(LastEdge.GetOrientation());
+
+    Vertex x = xy.GetTail(), y = xy.GetHead(), z = zw.GetTail(), w = zw.GetHead();
+
+    Edge oy = CreateEdge(y, o, xy, MEXTier(y, o), LastEdge.GetOrientation());
+    auto yx = xy; yx.SwitchOrientation();
+    Edge xo = CreateEdge(x, o, yx, MEXTier(x, o), StartEdge.GetOrientation());
+    if (xy == zw) {
+        Edge in_oo(o, o, Tier::A, StartEdge.GetOrientation());
+        Edge out_oo(o, o, Tier::A, LastEdge.GetOrientation());
+        cyclic_order.emplace(o, ECyc(o, std::make_pair(xo, in_oo), std::make_pair(out_oo, oy)));
     } else {
-        edge_b.OrientTowards(Positive);
-        Edge zo = CreateEdge(z, new_vertex, edge_b);
-        edge_b.OrientTowards(Negative);
-        Edge ow = CreateEdge(w, new_vertex, edge_b);
-        cyclic_order.emplace(new_vertex, ECyc(new_vertex, std::make_pair(xo, oy), std::make_pair(zo, ow)));
+        Edge ow = CreateEdge(w, o, zw, MEXTier(w, o), LastEdge.GetOrientation());
+        Edge wz = zw; wz.SwitchOrientation();
+        Edge zo = CreateEdge(z, o, wz, MEXTier(z, o), StartEdge.GetOrientation());
+        cyclic_order.emplace(o, ECyc(o, std::make_pair(xo, oy), std::make_pair(zo, ow)));
     }
-    return new_vertex;
+    return o;
 }
 
 std::pair<TEdge<SAGWithEndpoints>, TEdge<SAGWithEndpoints>> SAGWithEndpoints::RemoveVertex(const Vertex& vertex) {
     ECyc ecyc = GetECyc(vertex);
     Edge x_edge = ecyc.GetAnyEdge(), y_edge = ecyc.GetTransversal(x_edge);
     auto [z_edge, w_edge] = ecyc.GetNeighbours(x_edge);
-    std::pair<Edge, Edge> result(x_edge, y_edge);
+
+    if (x_edge.GetOrientation() != LastEdge.GetOrientation()) {
+        std::swap(x_edge, y_edge);
+    }
+    if (z_edge.GetOrientation() != LastEdge.GetOrientation()) {
+        std::swap(z_edge, w_edge);
+    }
+
+    std::pair<Edge, Edge> result(x_edge, x_edge);
 
     auto check_loop = [&](const Vertex& central_vertex, const Edge& neighbour_a, const Edge& neighbour_b) {
         auto opposite_neighbour_b = neighbour_b;
@@ -120,49 +129,70 @@ std::pair<TEdge<SAGWithEndpoints>, TEdge<SAGWithEndpoints>> SAGWithEndpoints::Re
         if (neighbour_a != opposite_neighbour_b) {
             return false;
         }
-        Edge a = ecyc.GetTransversal(neighbour_a), b = ecyc.GetTransversal(neighbour_b);
+        Edge out_edge = ecyc.GetTransversal(neighbour_a), in_edge = ecyc.GetTransversal(neighbour_b);
+        out_edge.SwitchOrientation(); in_edge.SwitchOrientation();
 
-        auto ab = CreateEdge(a.GetOther(central_vertex), b.GetOther(central_vertex), a);
-        if (!ab.IsLoop()) {
-            CreateEdge(b.GetOther(central_vertex), a.GetOther(central_vertex), b);
-        } else {
-            b.OrientTowards(b.GetOther(central_vertex));
-            cyclic_order.at(b.GetOther(central_vertex)).ReplaceEdge(b, ab);
-        }
-        result = std::make_pair(ab, ab);
+        auto in_out_tier = MEXTier(in_edge.GetHead(), out_edge.GetHead());
+        auto in_out = CreateEdge(
+            in_edge.GetHead(), 
+            out_edge.GetHead(), 
+            in_edge,
+            in_out_tier,
+            StartEdge.GetOrientation()
+        );
+        CreateEdge(
+            out_edge.GetHead(), 
+            in_edge.GetHead(), 
+            out_edge,
+            in_out_tier,
+            LastEdge.GetOrientation()
+        );
+        result = std::make_pair(in_out, in_out);
         return true;
     };
-    if (check_loop(vertex, x_edge, z_edge) ||
-        check_loop(vertex, z_edge, y_edge) ||
-        check_loop(vertex, y_edge, w_edge) ||
-        check_loop(vertex, w_edge, x_edge)) {
+    if (check_loop(vertex, z_edge, y_edge) ||
+        check_loop(vertex, x_edge, w_edge)) {
         cyclic_order.erase(vertex);
         return result;
     }
-    Edge xy = CreateEdge(x_edge.GetOther(vertex), y_edge.GetOther(vertex), x_edge);
-    if (!xy.IsLoop()) {
-        CreateEdge(y_edge.GetOther(vertex), x_edge.GetOther(vertex), y_edge);
-    } else {
-        y_edge.OrientTowards(y_edge.GetOther(vertex));
-        cyclic_order.at(y_edge.GetOther(vertex)).ReplaceEdge(y_edge, xy);
-    }
-    Edge zw = CreateEdge(z_edge.GetOther(vertex), w_edge.GetOther(vertex), z_edge);
-    if (!zw.IsLoop()) {
-        CreateEdge(w_edge.GetOther(vertex), z_edge.GetOther(vertex), w_edge);
-    } else {
-        w_edge.OrientTowards(w_edge.GetOther(vertex));
-        cyclic_order.at(w_edge.GetOther(vertex)).ReplaceEdge(w_edge, zw);
-    }
+    x_edge.SwitchOrientation(); y_edge.SwitchOrientation();
+    auto xy_tier = MEXTier(x_edge.GetHead(), y_edge.GetHead());
+    Edge xy = CreateEdge(
+        x_edge.GetHead(), 
+        y_edge.GetHead(), 
+        x_edge, 
+        xy_tier,
+        StartEdge.GetOrientation()
+    );
+    CreateEdge(
+        y_edge.GetHead(),
+        x_edge.GetHead(),
+        y_edge,
+        xy_tier,
+        LastEdge.GetOrientation()
+    );
+    z_edge.SwitchOrientation(), w_edge.SwitchOrientation();
+    auto zw_tier = MEXTier(z_edge.GetHead(), w_edge.GetHead());
+    Edge zw = CreateEdge(
+        z_edge.GetHead(),
+        w_edge.GetHead(),
+        z_edge,
+        zw_tier,
+        StartEdge.GetOrientation()
+    );
+    CreateEdge(
+        w_edge.GetOther(vertex),
+        z_edge.GetOther(vertex),
+        w_edge,
+        zw_tier,
+        LastEdge.GetOrientation()
+    );
     cyclic_order.erase(vertex);
     return std::make_pair(xy, zw);
 }
 
-TEdge<SAGWithEndpoints> SAGWithEndpoints::CreateEdge(const Vertex& vertex, const Vertex& other_vertex, Edge original_edge) {
-    if (!original_edge.IsLoop()) {
-        original_edge.OrientTowards(vertex);
-    }
-    Tier tier = MEXTier(vertex, other_vertex);
-    Edge new_edge = (vertex < other_vertex) ? Edge(vertex, other_vertex, tier, Positive)
+TEdge<SAGWithEndpoints> SAGWithEndpoints::CreateEdge(const Vertex& vertex, const Vertex& other_vertex, Edge original_edge, Tier tier, Polarity orientation) {
+    Edge new_edge = orientation == Positive ? Edge(vertex, other_vertex, tier, Positive)
                                             : Edge(other_vertex, vertex, tier, Negative);
     if (IsEndpoint(vertex)) {
         (vertex == StartEdge.GetHead() ? StartEdge : LastEdge) = new_edge; 
@@ -183,20 +213,24 @@ void SAGWithEndpoints::InsertGraph(const Edge& edge, const SAGWithEndpoints& oth
     for (auto& [vertex, ecyc] : other.cyclic_order) {
         bijection.emplace(vertex, CreateVertex());
     }
+    bool switch_polarity = (StartEdge.GetOrientation() != other.StartEdge.GetOrientation());
     for (auto& [vertex, ecyc] : other.cyclic_order) {
-        cyclic_order.emplace(bijection.at(vertex), other.GetECyc(vertex).CreateCopy(bijection));
+        cyclic_order.emplace(bijection.at(vertex), other.GetECyc(vertex).CreateCopy(bijection, switch_polarity));
     }
     Edge xy = edge;
-    Vertex x = xy.GetHead(), y = xy.GetTail();
-    Edge other_start = other.StartEdge.CreateCopy(bijection), other_last = other.LastEdge.CreateCopy(bijection);
+    xy.OrientTowards(LastEdge.GetOrientation());
+    Vertex x = xy.GetTail(), y = xy.GetHead();
+    Edge other_start = other.StartEdge.CreateCopy(bijection, switch_polarity), other_last = other.LastEdge.CreateCopy(bijection, switch_polarity);
     other_start.SwitchOrientation();
     other_last.SwitchOrientation();
 
-    CreateEdge(x, other_start.GetHead(), xy);
-    CreateEdge(other_start.GetHead(), x, other_start);
-    xy.SwitchOrientation();
-    CreateEdge(y, other_last.GetHead(), xy);
-    CreateEdge(other_last.GetHead(), y, other_last);
+    auto tier_last_y = MEXTier(y, other_last.GetHead());
+    CreateEdge(y, other_last.GetHead(), xy, tier_last_y, LastEdge.GetOrientation());
+    CreateEdge(other_last.GetHead(), y, other_last, tier_last_y, StartEdge.GetOrientation());
+    auto yx = xy; yx.SwitchOrientation();
+    auto tier_x_start = MEXTier(x, other_start.GetHead());
+    CreateEdge(x, other_start.GetHead(), yx, tier_x_start, StartEdge.GetOrientation());
+    CreateEdge(other_start.GetHead(), x, other_start, tier_x_start, LastEdge.GetOrientation());
 }
 
 std::vector<size_t> SAGWithEndpoints::ConvertToVector() const {
@@ -231,7 +265,7 @@ SAGWithEndpoints::SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& t
     size_t n = two_word.size()/2;
     std::map<Vertex, std::pair<Edge, Edge>> transversal_a, transversal_b;
     std::map<std::pair<Vertex, Vertex>, Tier> tiers;
-    auto func = [&](const Vertex& x, const Vertex& o, const Vertex& y) {
+    auto process = [&](const Vertex& x, const Vertex& o, const Vertex& y) {
         auto pair_xo = x < o ? std::make_pair(x, o) : std::make_pair(o, x);
         auto pair_oy = o < y ? std::make_pair(o, y) : std::make_pair(y, o);
         auto tier_xo = tiers.at(pair_xo);
@@ -251,11 +285,11 @@ SAGWithEndpoints::SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& t
         );
     };
     tiers.emplace(std::make_pair(StartEdge.GetHead(), bijection.at(two_word[0])), Tier::A);
-    func(StartEdge.GetHead(), bijection.at(two_word[0]), bijection.at(two_word[1]));
+    process(StartEdge.GetHead(), bijection.at(two_word[0]), bijection.at(two_word[1]));
     for (size_t i = 1; i < 2 * n - 1; ++i) {
-        func(bijection.at(two_word[i - 1]), bijection.at(two_word[i]), bijection.at(two_word[i + 1]));
+        process(bijection.at(two_word[i - 1]), bijection.at(two_word[i]), bijection.at(two_word[i + 1]));
     }
-    func(bijection.at(two_word[2 * n - 2]), bijection.at(two_word[2 * n - 1]), LastEdge.GetHead());
+    process(bijection.at(two_word[2 * n - 2]), bijection.at(two_word[2 * n - 1]), LastEdge.GetHead());
 
     StartEdge = transversal_a.at(bijection.at(two_word[0])).first;
     StartEdge.SwitchOrientation();

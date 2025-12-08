@@ -5,6 +5,12 @@ using Vertex = TVertex<SAGWithEndpoints>;
 using Edge = TEdge<SAGWithEndpoints>;
 using ECyc = TECyc<SAGWithEndpoints>;
 
+auto check_polarity_invariant = [](const SAGWithEndpoints& graph) {
+    for (auto edge = graph.GetKthEdge(0); edge != graph.GetLastEdge(); edge = graph.TransversalAdvance(edge)) {        
+        REQUIRE(edge.GetOrientation() == graph.GetLastEdge().GetOrientation());
+    }
+};
+
 TEST_CASE("Constructors") {
     REQUIRE_NOTHROW(SAGWithEndpoints(1, {}));
     REQUIRE_NOTHROW(SAGWithEndpoints(0));
@@ -33,11 +39,9 @@ TEST_CASE("TransversalAdvance") {
     REQUIRE(SAGWithEndpoints(6, {1, 1}).GetSize() == 1);
     REQUIRE(SAGWithEndpoints(6, {2, 1, 2, 1}).GetSize() == 2);
     
-    Edge start = example.GetStartEdge();
-    Edge last = example.GetLastEdge();
+    check_polarity_invariant(example);
     
-    auto edge = start;
-    edge.SwitchOrientation();
+    auto edge = example.GetKthEdge(0);
     
     std::vector<Edge> edges;
     edges.push_back(edge);
@@ -47,7 +51,7 @@ TEST_CASE("TransversalAdvance") {
     }
     REQUIRE(edges[1].IsLoop());
     REQUIRE(edges[4].IsLoop());
-    REQUIRE(edges[6] == last);
+    REQUIRE(edges[6] == example.GetLastEdge());
     REQUIRE(edges[1].GetHead() == edges[2].GetTail());
     REQUIRE(edges[2].GetHead() == edges[6].GetTail());
 
@@ -69,7 +73,7 @@ TEST_CASE("TransversalAdvance") {
     REQUIRE_THROWS(example.GetECyc(edges[6].GetHead()));
     REQUIRE_THROWS(example.GetECyc(impostor));
 
-    edge = last;
+    edge = example.GetLastEdge();
     edge.SwitchOrientation();
     for (size_t i = 0; i < 6; ++i) {
         edge = example.TransversalAdvance(edge);
@@ -108,9 +112,15 @@ TEST_CASE("Modification") {
     REQUIRE_NOTHROW(graph.GetKthEdge(3));
     graph.InsertVertex(graph.GetKthEdge(1), graph.GetKthEdge(3));
     REQUIRE(graph == SAGWithEndpoints{1, {2, 3, 2, 1, 3, 1}});
+
+    check_polarity_invariant(graph);
+
     graph.InsertVertex(graph.GetKthEdge(3), graph.GetKthEdge(3));
     REQUIRE(graph == SAGWithEndpoints{1, {2, 3, 2, 4, 4, 1, 3, 1}});
     graph.InsertVertex(graph.GetKthEdge(0), graph.GetKthEdge(6));
+
+    check_polarity_invariant(graph);
+
     REQUIRE(graph == SAGWithEndpoints{1, {5, 2, 3, 2, 4, 4, 1, 5, 3, 1}});
     graph.InsertVertex(graph.GetKthEdge(5), graph.GetKthEdge(5));
     REQUIRE(graph == SAGWithEndpoints{1, {5, 2, 3, 2, 4, 6, 6, 4, 1, 5, 3, 1}});
@@ -120,9 +130,15 @@ TEST_CASE("Modification") {
     graph.RemoveVertex(graph.GetKthEdge(4).GetHead());
     REQUIRE(graph == SAGWithEndpoints{3, {2, 3, 2, 4, 4, 1, 3, 1}});
     graph.RemoveVertex(graph.GetKthEdge(1).GetHead());
+
+    check_polarity_invariant(graph);
+
     REQUIRE(graph == SAGWithEndpoints{1, {2, 2, 4, 4, 1, 1}});
     graph.RemoveVertex(graph.GetKthEdge(4).GetHead());
     REQUIRE(graph == SAGWithEndpoints{1, {2, 2, 4, 4}});
+
+    check_polarity_invariant(graph);
+
     graph.RemoveVertex(graph.GetKthEdge(3).GetHead());
     REQUIRE(graph == SAGWithEndpoints{1, {2, 2}});
 
@@ -138,14 +154,21 @@ TEST_CASE("Modification") {
     graph.RemoveVertex(graph.GetKthEdge(0).GetHead());
     REQUIRE(graph == SAGWithEndpoints{1, {}});
 
+    check_polarity_invariant(graph);
+
     graph = SAGWithEndpoints{1, {3, 3}};
     graph.InsertGraph(graph.GetKthEdge(1), SAGWithEndpoints(4, {3, 3}));
     REQUIRE(graph == SAGWithEndpoints{42, {1, 2, 2, 1}});
-    
+
+    check_polarity_invariant(graph);
+
     graph = SAGWithEndpoints{1, {2, 3, 2, 4, 6, 6, 4, 1, 3, 1}};
     graph.InsertGraph(graph.GetKthEdge(3), SAGWithEndpoints(4, {3, 2, 2, 3}));
     REQUIRE(graph == SAGWithEndpoints{42, {2, 3, 2, 12, 13, 13, 12, 4, 6, 6, 4, 1, 3, 1}});
     graph.InsertGraph(graph.GetKthEdge(7), SAGWithEndpoints(4, {1, 2, 1, 2}));
+
+    check_polarity_invariant(graph);
+
     REQUIRE(graph == SAGWithEndpoints{42, {2, 3, 2, 12, 13, 13, 12, 21, 22, 21, 22, 4, 6, 6, 4, 1, 3, 1}});
     graph.InsertGraph(graph.GetKthEdge(0), SAGWithEndpoints(4, {1, 1}));
     REQUIRE(graph == SAGWithEndpoints{42, {100, 100, 2, 3, 2, 12, 13, 13, 12, 21, 22, 21, 22, 4, 6, 6, 4, 1, 3, 1}});

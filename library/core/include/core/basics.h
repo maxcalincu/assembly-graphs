@@ -105,7 +105,7 @@ public:
     Polarity GetOrientation() const;
     void SwitchOrientation();
     bool IsLoop() const;
-    TEdge CreateCopy(const std::map<Vertex, Vertex>& bijection) const;
+    TEdge CreateCopy(const std::map<Vertex, Vertex>& bijection, bool switch_polarity = false) const;
 };
 
 template<typename SAG>
@@ -176,8 +176,9 @@ void TEdge<SAG>::OrientTowards(Polarity orientation_) {
 }
 
 template<typename SAG>
-TEdge<SAG> TEdge<SAG>::CreateCopy(const std::map<Vertex, Vertex>& bijection) const {
-    return TEdge<SAG>(bijection.at(p_endpoint), bijection.at(n_endpoint), tier, orientation);
+TEdge<SAG> TEdge<SAG>::CreateCopy(const std::map<Vertex, Vertex>& bijection, bool switch_polarity) const {
+    return !switch_polarity ? TEdge<SAG>(bijection.at(p_endpoint), bijection.at(n_endpoint), tier, orientation)
+                            : TEdge<SAG>(bijection.at(n_endpoint), bijection.at(p_endpoint), tier, !orientation);
 }
 
 //ECyc
@@ -209,7 +210,7 @@ public:
     std::pair<Edge, Edge> GetNeighbours(const Edge& edge) const;
     Vertex GetCentralVertex() const;
     Tier MEXTier(const Vertex& incident_vertex) const;
-    TECyc CreateCopy(const std::map<Vertex, Vertex>& bijection) const;
+    TECyc CreateCopy(const std::map<Vertex, Vertex>& bijection, bool switch_polarity = false) const;
 };
 
 template<typename SAG>
@@ -330,11 +331,11 @@ bool TECyc<SAG>::GetIndex(const Edge& incident_edge, size_t& index) const {
 }
 
 template<typename SAG>
-TECyc<SAG> TECyc<SAG>::CreateCopy(const std::map<Vertex, Vertex>& bijection) const{
+TECyc<SAG> TECyc<SAG>::CreateCopy(const std::map<Vertex, Vertex>& bijection, bool switch_polarity) const{
     return TECyc<SAG>(bijection.at(central_vertex), {
-        incident_edges[0].CreateCopy(bijection), 
-        incident_edges[1].CreateCopy(bijection),
-        incident_edges[2].CreateCopy(bijection),
-        incident_edges[3].CreateCopy(bijection),
+        incident_edges[0].CreateCopy(bijection, switch_polarity), 
+        incident_edges[1].CreateCopy(bijection, switch_polarity),
+        incident_edges[2].CreateCopy(bijection, switch_polarity),
+        incident_edges[3].CreateCopy(bijection, switch_polarity),
     });
 }

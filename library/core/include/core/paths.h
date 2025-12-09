@@ -1,18 +1,29 @@
 #pragma once
 
-#include <core/interfaces.h>
 #include <core/sag_with_endpoints.h>
+#include <set>
 
-class SetOfSimplePaths {
+template<SimpleAssemblyGraphImpl SAG>
+class SetOfSimplePaths;
+
+template<>
+class SetOfSimplePaths<SAGWithEndpoints> {
     using Vertex = SAGWithEndpoints::Vertex;
     using Edge = SAGWithEndpoints::Edge;
     using ECyc = SAGWithEndpoints::ECyc;
 public:
-    SetOfSimplePaths(const SAGWithEndpoints& Graph);
-    void AddEdge(Edge);
-    void RemoveEdge(Edge);
-    size_t getNumberOfPaths() const;
-    size_t getNumberOfVertices() const;
+    SetOfSimplePaths(const SAGWithEndpoints& graph);
+    void InsertEdge(Edge edge);
+    void RemoveEdge(Edge edge);
+    bool IsInsertionValid(Edge edge) const;
+    size_t GetNumberOfPaths() const;
+    size_t GetNumberOfVertices() const;
+    size_t GetNumberOfEdges() const;
+    bool IsHamiltonian() const;
 private:
-    // TBA
+    SAGWithEndpoints graph;
+    std::map<Vertex, Edge> endpoint_edges;
+    std::map<Vertex, Vertex> other_endpoint;
+    std::map<Edge, Edge> next_edge;
+    std::set<Vertex> covered_vertices;
 };

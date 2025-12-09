@@ -163,7 +163,7 @@ TEST_CASE("ECyc") {
     test_ecyc(o, xo, loop_n, loop_p, ob, {
         {x, Tier::B},
         {b, Tier::B},
-        {o, Tier::B},
+        {o, Tier::A},
     });
     test_ecyc(o, xo, ao_2, ao, ao_3, {
         {x, Tier::B},

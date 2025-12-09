@@ -151,6 +151,11 @@ TEST_CASE("Modification") {
     auto vector = graph.ConvertToVector();
     REQUIRE(graph == SAGWithEndpoints{1, {1, 1}});
 
+    graph = SAGWithEndpoints(0, {1, 2, 1, 2});
+    graph.RemoveVertex(graph.GetKthEdge(1).GetHead());
+    vector = graph.ConvertToVector();
+    REQUIRE(graph == SAGWithEndpoints{1, {1, 1}});
+
     graph.RemoveVertex(graph.GetKthEdge(0).GetHead());
     REQUIRE(graph == SAGWithEndpoints{1, {}});
 

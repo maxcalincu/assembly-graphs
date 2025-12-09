@@ -2,6 +2,7 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <array>
 
 
 template<typename SAG>
@@ -93,6 +94,7 @@ public:
 
     TEdge(const Vertex& p_endpoint, const Vertex& n_endpoint, Tier tier, Polarity orientation);
     bool operator==(const TEdge& other) const;
+    bool operator<(const TEdge& other) const;
     bool HasEndpoint(const Vertex& vertex) const;
     Tier GetTier() const;
     Vertex GetNegative() const;
@@ -135,6 +137,17 @@ void TEdge<SAG>::SwitchOrientation() { orientation = !orientation; }
 template<typename SAG>
 bool TEdge<SAG>::operator==(const TEdge<SAG>& other) const {
     return (tier == other.tier) && (p_endpoint == other.p_endpoint) && (n_endpoint == other.n_endpoint) && (orientation == other.orientation);
+}
+
+template<typename SAG>
+bool TEdge<SAG>::operator<(const TEdge& other) const {
+    return  p_endpoint != other.p_endpoint 
+                ? p_endpoint < other.p_endpoint
+                : n_endpoint != other.n_endpoint 
+                    ? n_endpoint < other.n_endpoint
+                    : tier != other.tier
+                        ? tier < other.tier
+                        : orientation < other.orientation; 
 }
 
 template<typename SAG>

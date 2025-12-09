@@ -1,5 +1,7 @@
 add_library(core SHARED
     src/sag_with_endpoints/sag_with_endpoints.cpp
+    src/paths/paths.cpp
+    src/generators/generators.cpp
 )
 
 target_compile_features(core PUBLIC cxx_std_20)

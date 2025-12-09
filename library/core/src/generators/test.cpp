@@ -1,5 +1,3 @@
-#include "core/basics.h"
-#include "core/sag_with_endpoints.h"
 #include <catch2/catch_test_macros.hpp>
 #include <core/generators.h>
 

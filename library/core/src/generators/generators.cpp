@@ -5,8 +5,8 @@ TEdge<SAGWithEndpoints> SAGGenerator<SAGWithEndpoints>::RemoveFirstVertex(SAGWit
         throw std::runtime_error("RemoveFirstVertex");
     }
     auto [x, y] = graph.RemoveVertex(graph.GetKthEdge(0).GetHead());
-    x.OrientTowards(graph.GetLastEdge().GetOrientation());
-    y.OrientTowards(graph.GetLastEdge().GetOrientation());
+    x.OrientTowards(graph.GetOrientation());
+    y.OrientTowards(graph.GetOrientation());
     return (x == graph.GetKthEdge(0) ? y : x);
 }
 

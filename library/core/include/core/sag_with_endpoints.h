@@ -8,6 +8,7 @@ public:
     size_t GetSize() const override;
     Edge GetStartEdge() const;
     Edge GetLastEdge() const;
+    Polarity GetOrientation() const;
     std::vector<size_t> ConvertToVector() const override;
     
     bool operator==(const SAGWithEndpoints& other) const override;
@@ -18,7 +19,9 @@ public:
     void Reverse();
     std::pair<Edge, Edge> RemoveVertex(const Vertex& vertex) override;
     Vertex InsertVertex(const Edge& edge_a, const Edge& edge_b) override;
-    void InsertGraph(const Edge& edge, const SAGWithEndpoints& graph) override;
+    std::pair<Edge, Edge> InsertGraph(const Edge& edge, const SAGWithEndpoints& graph) override;
+    void Saturate(const SAGWithEndpoints subgraph);
+    void InteriorSaturate(const SAGWithEndpoints subgraph);
 
     SAGWithEndpoints(size_t graph_id);
     SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& two_word);

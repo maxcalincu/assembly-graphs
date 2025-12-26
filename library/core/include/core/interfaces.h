@@ -24,7 +24,7 @@ public:
     virtual bool operator==(const SAG& other) const = 0;
     virtual std::pair<Edge, Edge> RemoveVertex(const Vertex& vertex) = 0;
     virtual Vertex InsertVertex(const Edge& edge_a, const Edge& edge_b) = 0;
-    virtual void InsertGraph(const Edge& edge, const SAG& graph) = 0;
+    virtual std::pair<Edge, Edge> InsertGraph(const Edge& edge, const SAG& graph) = 0;
     virtual ECyc GetECyc(const Vertex& vertex) const = 0;
     virtual std::size_t GetSize() const = 0;
     virtual bool HasVertex(const Vertex& vertex) const = 0;

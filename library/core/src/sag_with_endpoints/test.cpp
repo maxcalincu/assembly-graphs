@@ -7,7 +7,7 @@ using ECyc = TECyc<SAGWithEndpoints>;
 
 auto check_polarity_invariant = [](const SAGWithEndpoints& graph) {
     for (auto edge = graph.GetKthEdge(0); edge != graph.GetLastEdge(); edge = graph.TransversalAdvance(edge)) {        
-        REQUIRE(edge.GetOrientation() == graph.GetLastEdge().GetOrientation());
+        REQUIRE(edge.GetOrientation() == graph.GetOrientation());
     }
 };
 
@@ -177,4 +177,41 @@ TEST_CASE("Modification") {
     REQUIRE(graph == SAGWithEndpoints{42, {2, 3, 2, 12, 13, 13, 12, 21, 22, 21, 22, 4, 6, 6, 4, 1, 3, 1}});
     graph.InsertGraph(graph.GetKthEdge(0), SAGWithEndpoints(4, {1, 1}));
     REQUIRE(graph == SAGWithEndpoints{42, {100, 100, 2, 3, 2, 12, 13, 13, 12, 21, 22, 21, 22, 4, 6, 6, 4, 1, 3, 1}});
+}
+
+TEST_CASE("Saturate") {
+    SAGWithEndpoints graph(0, {1, 2, 3, 2, 3, 1});
+    graph.Saturate(SAGWithEndpoints(5, {1, 2, 1, 2}));
+    CHECK(graph == SAGWithEndpoints(4, {
+        11, 12, 11, 12,
+        1,
+        21, 22, 21, 22,
+        2,
+        31, 32, 31, 32,
+        3,
+        41, 42, 41, 42,
+        2,
+        51, 52, 51, 52,
+        3,
+        61, 62, 61, 62,
+        1,
+        71, 72, 71, 72,
+    }));
+    graph = SAGWithEndpoints(0, {1, 2, 2, 1});
+    graph.InteriorSaturate(SAGWithEndpoints(2, {1, 1}));
+    CHECK(graph == SAGWithEndpoints(4, {1, 3, 3, 2, 4, 4, 2, 5, 5, 1}));
+    
+    graph = SAGWithEndpoints(0, {1, 1});
+    graph.InteriorSaturate(SAGWithEndpoints(2, {4, 3, 4, 5, 5, 6, 3, 7, 7, 6}));
+    CHECK(graph == SAGWithEndpoints(4, {1, 4, 3, 4, 5, 5, 6, 3, 7, 7, 6, 1}));
+
+    graph = SAGWithEndpoints(0, {});
+    graph.InteriorSaturate(SAGWithEndpoints(2, {1, 1}));
+    CHECK(graph == SAGWithEndpoints(4, {}));
+    graph.Saturate(SAGWithEndpoints(2, {1, 2, 2, 1}));
+    CHECK(graph == SAGWithEndpoints(4, {1, 2, 2, 1}));
+    
+    graph = SAGWithEndpoints(0, {1, 1});
+    graph.Saturate(graph);
+    REQUIRE(graph == SAGWithEndpoints(0, {1, 1, 2, 3, 3, 2, 4, 4}));
 }

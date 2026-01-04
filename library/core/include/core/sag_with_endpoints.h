@@ -20,8 +20,8 @@ public:
     std::pair<Edge, Edge> RemoveVertex(const Vertex& vertex) override;
     Vertex InsertVertex(const Edge& edge_a, const Edge& edge_b) override;
     std::pair<Edge, Edge> InsertGraph(const Edge& edge, const SAGWithEndpoints& graph) override;
-    void Saturate(const SAGWithEndpoints subgraph);
-    void InteriorSaturate(const SAGWithEndpoints subgraph);
+    SAGWithEndpoints& Saturate(const SAGWithEndpoints subgraph);
+    SAGWithEndpoints& InteriorSaturate(const SAGWithEndpoints subgraph);
 
     SAGWithEndpoints(size_t graph_id);
     SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& two_word);
@@ -51,3 +51,7 @@ public:
         return os;
     }
 };
+
+SAGWithEndpoints operator*(int lhs, const SAGWithEndpoints& graph);
+
+SAGWithEndpoints operator+(const SAGWithEndpoints& lhs, const SAGWithEndpoints& rhs);

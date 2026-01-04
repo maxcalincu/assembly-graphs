@@ -326,21 +326,36 @@ TEdge<SAGWithEndpoints> SAGWithEndpoints::GetKthEdge(size_t k) const {
     return edge;
 }
 
-void SAGWithEndpoints::InteriorSaturate(const SAGWithEndpoints subgraph) {
+SAGWithEndpoints& SAGWithEndpoints::InteriorSaturate(const SAGWithEndpoints subgraph) {
     if (GetSize() == 0) {
-        return;
+        return *this;
     }
     for (auto edge = GetKthEdge(1); edge != GetLastEdge(); edge = TransversalAdvance(edge)) {
         edge = InsertGraph(edge, subgraph).second;
     }
+    return *this;
 }
 
-void SAGWithEndpoints::Saturate(const SAGWithEndpoints subgraph) {
+SAGWithEndpoints& SAGWithEndpoints::Saturate(const SAGWithEndpoints subgraph) {
     if (GetSize() == 0) {
         InsertGraph(GetStartEdge(), subgraph);
-        return;
+        return *this;
     }
     InteriorSaturate(subgraph);
     InsertGraph(GetStartEdge(), subgraph);
     InsertGraph(GetLastEdge(), subgraph);
+    return *this;
+}
+
+SAGWithEndpoints operator*(int lhs, const SAGWithEndpoints& graph) {
+    auto result = SAGWithEndpoints(0, {});
+    for (size_t i = 0; i < lhs; ++i) {
+        result.InsertGraph(result.GetLastEdge(), graph);
+    }
+    return result;
+}
+
+SAGWithEndpoints operator+(const SAGWithEndpoints& lhs, const SAGWithEndpoints& rhs) {
+    auto result = lhs; result.InsertGraph(result.GetLastEdge(), rhs);
+    return result;
 }

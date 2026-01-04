@@ -1,25 +1,25 @@
 #include <core/paths.h>
 
 size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfPaths() const {
-    return (endpoint_edges.size()/2);
+    return (endpoint_edges.size()/2) + GetNumberOfDots();
 }
 
 size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfVertices() const {
     return covered_vertices.size();
 }
 
-bool SetOfSimplePaths<SAGWithEndpoints>::IsHamiltonian() const {
-    return graph.GetSize() == GetNumberOfVertices();
+size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfDots() const {
+    return graph.GetSize() - GetNumberOfVertices();
 }
 
 SetOfSimplePaths<SAGWithEndpoints>::SetOfSimplePaths(const SAGWithEndpoints& graph): graph(graph) {};
 
 
 size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfEdges() const {
-    return GetNumberOfVertices() - GetNumberOfPaths();
+    return next_edge.size()/2 + endpoint_edges.size()/2;
 }
 
-bool SetOfSimplePaths<SAGWithEndpoints>::IsEndpoint(const Vertex& vertex) const {
+bool SetOfSimplePaths<SAGWithEndpoints>::IsPathEndpoint(const Vertex& vertex) const {
     return other_endpoint.contains(vertex);
 }
 
@@ -28,14 +28,14 @@ bool SetOfSimplePaths<SAGWithEndpoints>::IsCovered(const Vertex& vertex) const {
 }
 
 TEdge<SAGWithEndpoints> SetOfSimplePaths<SAGWithEndpoints>::GetEndpointEdge(const Vertex& vertex) const {
-    if (!IsEndpoint(vertex)) {
+    if (!IsPathEndpoint(vertex)) {
         throw std::runtime_error("GetEndpointEdge: vertex isn't an endpoint");
     }
     return endpoint_edges.at(vertex);
 }
 
 TVertex<SAGWithEndpoints> SetOfSimplePaths<SAGWithEndpoints>::GetOtherEndpoint(const Vertex& vertex) const {
-    if (!IsEndpoint(vertex)) {
+    if (!IsPathEndpoint(vertex)) {
         throw std::runtime_error("GetOtherEndpoint: vertex isn't an endpoint");
     }
     return other_endpoint.at(vertex);
@@ -53,10 +53,10 @@ TEdge<SAGWithEndpoints> SetOfSimplePaths<SAGWithEndpoints>::GetNextPathEdge(cons
 bool SetOfSimplePaths<SAGWithEndpoints>::Contains(const Edge& edge) const {
     auto xy = edge, yx = edge; yx.SwitchOrientation();
     auto x = xy.GetTail(), y = xy.GetHead();
-    if (!IsEndpoint(x)) {
+    if (!IsPathEndpoint(x)) {
         return next_edge.contains(yx);
     }
-    if (!IsEndpoint(y)) {
+    if (!IsPathEndpoint(y)) {
         return next_edge.contains(xy);
     }
     return (GetEndpointEdge(x) == yx) || (GetEndpointEdge(x) == xy);
@@ -64,8 +64,8 @@ bool SetOfSimplePaths<SAGWithEndpoints>::Contains(const Edge& edge) const {
 
 bool SetOfSimplePaths<SAGWithEndpoints>::IsInsertionValid(Edge xy) const {
     auto check = [&](const Vertex& x_, const Vertex y_){
-        if (!IsEndpoint(x_)) {
-            return false;
+        if (!IsPathEndpoint(x_)) {
+            return IsCovered(x_);
         }
         auto edge_x = GetEndpointEdge(x_);
         ECyc ecyc_x = graph.GetECyc(x_);
@@ -101,7 +101,7 @@ void SetOfSimplePaths<SAGWithEndpoints>::InsertEdge(Edge xy) {
         endpoint_edges.emplace(y, xy);
         return;
     }
-    if (covered_vertices.contains(x)) {
+    if (IsCovered(x)) {
         std::swap(x, y);
     }
     auto y_edge = endpoint_edges.at(y);
@@ -132,7 +132,7 @@ void SetOfSimplePaths<SAGWithEndpoints>::InsertEdge(Edge xy) {
     other_endpoint.erase(other_x);
 
     xy.OrientTowards(x);
-    y_edge.OrientTowards(x);
+    x_edge.OrientTowards(x);
     next_edge.emplace(xy, x_edge);
     next_edge.emplace(x_edge, xy);
 
@@ -145,7 +145,7 @@ void SetOfSimplePaths<SAGWithEndpoints>::RemoveEdge(Edge xy) {
         throw std::runtime_error("RemoveEdge: set doesn't have xy");
     }
     auto get_other = [&](Edge xy){
-        while (!IsEndpoint(xy.GetHead())) {
+        while (!IsPathEndpoint(xy.GetHead())) {
             xy = GetNextPathEdge(xy);
         }
         return xy.GetHead();

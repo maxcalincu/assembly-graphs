@@ -26,24 +26,24 @@ TEST_CASE("Simple") {
     graph = SAGWithEndpoints(0, {1, 2, 3, 3, 1, 2});
     set = Set(graph);
     REQUIRE(set.IsInsertionValid(graph.GetKthEdge(2)));
-    REQUIRE_FALSE(set.IsHamiltonian());
+    REQUIRE_FALSE(set.GetNumberOfDots() == 0);
     set.InsertEdge(graph.GetKthEdge(1));
     REQUIRE(set.GetNumberOfVertices() == 2);
     REQUIRE(set.GetNumberOfEdges() == 1);
-    REQUIRE(set.GetNumberOfPaths() == 1);
-    REQUIRE(set.IsEndpoint(graph.GetKthEdge(0).GetHead()));
-    REQUIRE(set.IsEndpoint(graph.GetKthEdge(1).GetHead()));
+    REQUIRE(set.GetNumberOfPaths() == 2);
+    REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(0).GetHead()));
+    REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(1).GetHead()));
 
     REQUIRE(set.IsInsertionValid(graph.GetKthEdge(4)));
     REQUIRE_FALSE(set.IsInsertionValid(graph.GetKthEdge(5)));
-    REQUIRE_FALSE(set.IsHamiltonian());
+    REQUIRE_FALSE(set.GetNumberOfDots() == 0);
     set.InsertEdge(graph.GetKthEdge(4));
     REQUIRE(set.GetNumberOfVertices() == 3);
     REQUIRE(set.GetNumberOfEdges() == 2);
     REQUIRE(set.GetNumberOfPaths() == 1);
-    REQUIRE(set.IsEndpoint(graph.GetKthEdge(2).GetHead()));
-    REQUIRE(set.IsEndpoint(graph.GetKthEdge(1).GetHead()));
-    REQUIRE_FALSE(set.IsEndpoint(graph.GetKthEdge(0).GetHead()));
+    REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(2).GetHead()));
+    REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(1).GetHead()));
+    REQUIRE_FALSE(set.IsPathEndpoint(graph.GetKthEdge(0).GetHead()));
     REQUIRE(set.GetOtherEndpoint(graph.GetKthEdge(2).GetHead()) == graph.GetKthEdge(1).GetHead());
     REQUIRE(set.GetOtherEndpoint(graph.GetKthEdge(1).GetHead()) == graph.GetKthEdge(2).GetHead());
     REQUIRE(set.Contains(graph.GetKthEdge(1)));
@@ -53,11 +53,28 @@ TEST_CASE("Simple") {
     REQUIRE_FALSE(set.Contains(graph.GetKthEdge(3)));
     REQUIRE_FALSE(set.Contains(graph.GetKthEdge(5)));
     REQUIRE(set.GetNextPathEdge(graph.GetKthEdge(4)) == graph.GetKthEdge(1));
-    REQUIRE(set.IsHamiltonian());
+    REQUIRE(set.GetNumberOfDots() == 0);
 
     graph = SAGWithEndpoints(0, {});
     set = Set(graph);
-    REQUIRE(set.IsHamiltonian());
+    REQUIRE(set.GetNumberOfDots() == 0);
+}
+
+TEST_CASE("Debug") {
+    auto graph = SAGWithEndpoints(0, {1, 1, 2, 2, 3, 3, 4, 4});
+    auto set = Set(graph);
+    REQUIRE_NOTHROW(set.InsertEdge(graph.GetKthEdge(2)));
+    REQUIRE_NOTHROW(set.InsertEdge(graph.GetKthEdge(6)));
+    REQUIRE(set.IsInsertionValid(graph.GetKthEdge(4)));
+    REQUIRE_FALSE(set.IsInsertionValid(graph.GetKthEdge(2)));
+    REQUIRE_NOTHROW(set.InsertEdge(graph.GetKthEdge(4)));
+
+    graph = SAGWithEndpoints(0, {1, 1, 2, 3, 3, 2, 4, 4});
+    set = Set(graph);
+    REQUIRE_NOTHROW(set.InsertEdge(graph.GetKthEdge(2)));
+    REQUIRE_FALSE(set.IsInsertionValid(graph.GetKthEdge(3)));
+    REQUIRE_NOTHROW(set.InsertEdge(graph.GetKthEdge(5)));
+    REQUIRE_FALSE(set.IsInsertionValid(graph.GetKthEdge(6)));
 }
 
 TEST_CASE("Example") {
@@ -67,9 +84,9 @@ TEST_CASE("Example") {
     REQUIRE_NOTHROW(set.InsertEdge(graph.GetKthEdge(4)));
     REQUIRE_NOTHROW(set.InsertEdge(graph.GetKthEdge(7)));
     REQUIRE(set.GetNumberOfPaths() == 1);
-    REQUIRE(set.IsHamiltonian());
-    REQUIRE(set.IsEndpoint(graph.GetKthEdge(2).GetHead()));
-    REQUIRE(set.IsEndpoint(graph.GetKthEdge(4).GetHead()));
+    REQUIRE(set.GetNumberOfDots() == 0);
+    REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(2).GetHead()));
+    REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(4).GetHead()));
     auto edge = graph.GetKthEdge(7);
     REQUIRE_NOTHROW(edge = set.GetNextPathEdge(edge));
     REQUIRE_NOTHROW(edge = set.GetNextPathEdge(edge));

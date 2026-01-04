@@ -83,6 +83,15 @@ TEST_CASE("TransversalAdvance") {
 }
 
 TEST_CASE("Modification") {
+
+    REQUIRE(SAGWithEndpoints(2, {1, 2, 2, 1}) + 
+            SAGWithEndpoints(4, {1, 2, 1, 2}) == 
+            SAGWithEndpoints(5, {3, 4, 4, 3, 1, 2, 1, 2})
+    );
+    REQUIRE(3 * SAGWithEndpoints(2, {1, 2, 2, 1}) == 
+            SAGWithEndpoints(5, {5, 6, 6, 5, 3, 4, 4, 3, 1, 2, 2, 1})
+    );
+
     SAGWithEndpoints example(0, {1, 1, 2, 3, 3, 2});
 
     REQUIRE(example.GetStartEdge().GetHead() != example.GetLastEdge().GetHead());

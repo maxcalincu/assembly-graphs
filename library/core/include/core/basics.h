@@ -61,6 +61,8 @@ constexpr Polarity operator!(const Polarity& p) {
     return p == Positive ? Negative : Positive;
 }
 
+std::ostream& operator<<(std::ostream& os, const Polarity& p);
+
 enum Tier{A, B, C, D, X};
 constexpr Tier& operator++(Tier& t) {
     switch (t) {
@@ -71,6 +73,8 @@ constexpr Tier& operator++(Tier& t) {
         default: return t = X;
     }
 }
+
+std::ostream& operator<<(std::ostream& os, const Tier& t);
 
 template<typename SAG>
 class TEdge {
@@ -102,10 +106,10 @@ public:
     Vertex GetOther(const Vertex& vertex) const;
     Vertex GetHead() const;
     Vertex GetTail() const;
-    void OrientTowards(const Vertex& head);
-    void OrientTowards(Polarity orientation);
     Polarity GetOrientation() const;
-    void SwitchOrientation();
+    TEdge<SAG>& OrientTowards(const Vertex& head);
+    TEdge<SAG>& OrientTowards(Polarity orientation);
+    TEdge<SAG>& SwitchOrientation();
     bool IsLoop() const;
     TEdge CreateCopy(const std::map<Vertex, Vertex>& bijection, bool switch_polarity = false) const;
 };
@@ -132,7 +136,7 @@ template<typename SAG>
 bool TEdge<SAG>::HasEndpoint(const Vertex& vertex) const { return p_endpoint == vertex || n_endpoint == vertex; }
 
 template<typename SAG>
-void TEdge<SAG>::SwitchOrientation() { orientation = !orientation; }
+TEdge<SAG>& TEdge<SAG>::SwitchOrientation() { orientation = !orientation; return *this; }
 
 template<typename SAG>
 bool TEdge<SAG>::operator==(const TEdge<SAG>& other) const {
@@ -169,23 +173,24 @@ template<typename SAG>
 bool TEdge<SAG>::IsLoop() const { return p_endpoint == n_endpoint; }
 
 template<typename SAG>
-void TEdge<SAG>::OrientTowards(const Vertex& head) {
+TEdge<SAG>& TEdge<SAG>::OrientTowards(const Vertex& head) {
     if (IsLoop()) {
         throw std::runtime_error("OrientTowards: loop passed");
     }
     if (head == GetHead()) {
-        return;
+        return *this;
     }
     if (head == GetTail()) {
         SwitchOrientation();
-        return;
+        return *this;
     }
     throw std::runtime_error("OrientTowards: no such endpoint");
 }
 
 template<typename SAG>
-void TEdge<SAG>::OrientTowards(Polarity orientation_) {
+TEdge<SAG>& TEdge<SAG>::OrientTowards(Polarity orientation_) {
     orientation = orientation_;
+    return *this;
 }
 
 template<typename SAG>

@@ -49,6 +49,10 @@ SetPointer ExactSetBuilder::Build(const SAGWithEndpoints& graph) const {
     return best_result;
 }
 
-size_t An(const SAGWithEndpoints& graph, const ISetBuilder& sb) {
+size_t GetNumberOfPaths(const SAGWithEndpoints& graph, const ISetBuilder& sb) {
     return sb.Build(graph)->GetNumberOfPaths();
+}
+
+size_t An(const SAGWithEndpoints& graph) {
+    return GetNumberOfPaths(graph, ExactSetBuilder());
 }

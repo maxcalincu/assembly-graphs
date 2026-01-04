@@ -12,15 +12,15 @@ const SAGWithEndpoints pretzel(1, {1, 2, 1, 2});
 TEST_CASE("Greedy") {
     GreedySetBuilder greedy;
     SymGreedySetBuilder sym_greedy;
-    CHECK(An(SAGWithEndpoints(3, {}), greedy) == 0);
-    CHECK(An(SAGWithEndpoints(4, {1, 1}).InteriorSaturate(loop), greedy) == 1);
-    CHECK(An(SAGWithEndpoints(4, {1, 1}).Saturate(loop), greedy) == 2);
-    CHECK(An(SAGWithEndpoints(5, {1, 1, 2, 2, 3, 3}).Saturate(loop), greedy) == 4);
-    CHECK(An(SAGWithEndpoints(5, {1, 2, 3, 2, 4, 4, 3, 1}).Saturate(loop), greedy) == 5);
-    CHECK(An(SAGWithEndpoints(5, {1, 1}).Saturate(pretzel), greedy) == 2);
-    CHECK(An(SAGWithEndpoints(5, {1, 2, 3, 2, 4, 4, 3, 1}).Saturate(pretzel), greedy) == 5);
-    CHECK(An(3 * SAGWithEndpoints(5, {1, 2, 3, 4, 3, 4, 5, 1, 2, 5}), greedy) == 3);
-    CHECK(An(3 * SAGWithEndpoints(5, {1, 2, 3, 4, 3, 4, 5, 1, 2, 5}), sym_greedy) == 1);
+    CHECK(GetNumberOfPaths(SAGWithEndpoints(3, {}), greedy) == 0);
+    CHECK(GetNumberOfPaths(SAGWithEndpoints(4, {1, 1}).InteriorSaturate(loop), greedy) == 1);
+    CHECK(GetNumberOfPaths(SAGWithEndpoints(4, {1, 1}).Saturate(loop), greedy) == 2);
+    CHECK(GetNumberOfPaths(SAGWithEndpoints(5, {1, 1, 2, 2, 3, 3}).Saturate(loop), greedy) == 4);
+    CHECK(GetNumberOfPaths(SAGWithEndpoints(5, {1, 2, 3, 2, 4, 4, 3, 1}).Saturate(loop), greedy) == 5);
+    CHECK(GetNumberOfPaths(SAGWithEndpoints(5, {1, 1}).Saturate(pretzel), greedy) == 2);
+    CHECK(GetNumberOfPaths(SAGWithEndpoints(5, {1, 2, 3, 2, 4, 4, 3, 1}).Saturate(pretzel), greedy) == 5);
+    CHECK(GetNumberOfPaths(3 * SAGWithEndpoints(5, {1, 2, 3, 4, 3, 4, 5, 1, 2, 5}), greedy) == 3);
+    CHECK(GetNumberOfPaths(3 * SAGWithEndpoints(5, {1, 2, 3, 4, 3, 4, 5, 1, 2, 5}), sym_greedy) == 1);
 }
 
 TEST_CASE("An") {

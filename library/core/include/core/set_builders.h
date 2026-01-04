@@ -27,4 +27,6 @@ public:
     SetPointer Build(const SAGWithEndpoints& graph) const override;
 };
 
-size_t An(const SAGWithEndpoints& graph, const ISetBuilder& sb = ExactSetBuilder());
+size_t GetNumberOfPaths(const SAGWithEndpoints& graph, const ISetBuilder& set_builder);
+
+size_t An(const SAGWithEndpoints& graph);

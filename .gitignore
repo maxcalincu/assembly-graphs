@@ -3,3 +3,6 @@ junk/
 *.ipynb
 *.json
 .cache/
+scripts/*.svg
+scripts/*.ipynb
+*__pycache__

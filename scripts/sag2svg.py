@@ -27,6 +27,12 @@ def sag2svg(word: list, output_file: str) -> None:
     def approx_equal(x, y):
         return abs(x[0] - y[0]) + abs(x[1] - y[1]) < EPS
 
+    def L1(point_a, point_b):
+        return abs(point_a[0] - point_b[0]) + abs(point_a[1] - point_b[1])
+
+    def L2(point_a, point_b):
+        return (point_a[0] - point_b[0])*(point_a[0] - point_b[0]) + (point_a[1] - point_b[1])*(point_a[1] - point_b[1])
+
     # Step 1: Parse the word and build graph adjacency
     letters = list(set(word))
     n = len(letters)
@@ -70,11 +76,10 @@ def sag2svg(word: list, output_file: str) -> None:
         current = queue.popleft()
         candidates = get_unoccupied_points(vertex=current)
         random.shuffle(candidates)
-        candidates = sorted(candidates, key=lambda candidate: -(candidate[0]*candidate[0] + candidate[1]*candidate[1]))
-        
+        candidates = sorted(candidates, key=lambda candidate: int(1e10)*(L1(candidate, vertex_coordinates[current])) + L2(candidate, (0, 0)))
         for neighbor in adjacency[current]:
             if neighbor not in visited:
-                vertex_coordinates[neighbor] = candidates.pop()
+                vertex_coordinates[neighbor] = candidates.pop(0)
                 visited.append(neighbor)
                 queue.append(neighbor)
     
@@ -196,13 +201,6 @@ def sag2svg(word: list, output_file: str) -> None:
         adj_p1 = (p1[0] - min_x + padding, p1[1] - min_y + padding)
         adj_p2 = (p2[0] - min_x + padding, p2[1] - min_y + padding)
         adj_p3 = (p3[0] - min_x + padding, p3[1] - min_y + padding)
-        
-        # Define the gradient
-        opacity = 0.8
-        gradient_id = f'gradient_{i}'
-        gradient = dwg.defs.add(dwg.linearGradient(id=gradient_id))
-        gradient.add_stop_color(offset='0%', color="#000000", opacity=opacity)
-        gradient.add_stop_color(offset='100%', color="#000000", opacity=opacity)
 
         # Create cubic Bezier path
         path = dwg.path(d=f"M {adj_p0[0]},{adj_p0[1]} "
@@ -210,7 +208,7 @@ def sag2svg(word: list, output_file: str) -> None:
                          f"{adj_p2[0]},{adj_p2[1]} "
                          f"{adj_p3[0]},{adj_p3[1]}",
                        fill='none',
-                       stroke=f'url(#{gradient_id})',
+                       stroke=f'black',
                        stroke_width=STROKE_WIDTH)
         graph_group.add(path)
     

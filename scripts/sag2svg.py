@@ -5,8 +5,7 @@ import svgwrite
 
 import argparse
 import sys
-from pathlib import Path
-
+import random
 
 def sag2svg(word: list, output_file: str) -> None:
     """
@@ -22,6 +21,8 @@ def sag2svg(word: list, output_file: str) -> None:
     SCALE = 150
     NODE_RADIUS = 4         
     STROKE_WIDTH = 0.5
+    DISTORTION_X = 0.08
+    DISTORTION_Y = 0.28
 
     def approx_equal(x, y):
         return abs(x[0] - y[0]) + abs(x[1] - y[1]) < EPS
@@ -67,7 +68,9 @@ def sag2svg(word: list, output_file: str) -> None:
 
     while len(queue) > 0:
         current = queue.popleft()
-        candidates = sorted(get_unoccupied_points(vertex=current), key=lambda candidate: -(candidate[0]*candidate[0] + candidate[1]*candidate[1]))
+        candidates = get_unoccupied_points(vertex=current)
+        random.shuffle(candidates)
+        candidates = sorted(candidates, key=lambda candidate: -(candidate[0]*candidate[0] + candidate[1]*candidate[1]))
         
         for neighbor in adjacency[current]:
             if neighbor not in visited:
@@ -77,10 +80,10 @@ def sag2svg(word: list, output_file: str) -> None:
     
     for vertex, (x, y) in vertex_coordinates.items():
         if int(abs(y)/SCALE + EPS)%2 == 1:
-            y += SCALE * 0.25
+            y += SCALE * DISTORTION_Y
             vertex_coordinates[vertex] = (x, y)
         if int(abs(x)/SCALE + EPS)%2 == 1:
-            x += SCALE * 0.25
+            x += SCALE * DISTORTION_X
             vertex_coordinates[vertex] = (x, y)
 
     # Step 3: Define allowed directions (angles)

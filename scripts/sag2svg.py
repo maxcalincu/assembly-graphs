@@ -77,9 +77,11 @@ def sag2svg(word: list, output_file: str) -> None:
     
     for vertex, (x, y) in vertex_coordinates.items():
         if int(abs(y)/SCALE + EPS)%2 == 1:
-            vertex_coordinates[vertex] = (x, y + SCALE * 0.15)
+            y += SCALE * 0.25
+            vertex_coordinates[vertex] = (x, y)
         if int(abs(x)/SCALE + EPS)%2 == 1:
-            vertex_coordinates[vertex] = (x + SCALE * 0.25, y)
+            x += SCALE * 0.25
+            vertex_coordinates[vertex] = (x, y)
 
     # Step 3: Define allowed directions (angles)
     # Solutions of (z^12 - 1)/(z^4 - 1) = 0

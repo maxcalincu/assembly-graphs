@@ -6,6 +6,7 @@ import svgwrite
 import argparse
 import sys
 import random
+import numpy as np
 
 def sag2svg(word: list, output_file: str) -> None:
     """
@@ -25,13 +26,7 @@ def sag2svg(word: list, output_file: str) -> None:
     DISTORTION_Y = 0.28
 
     def approx_equal(x, y):
-        return abs(x[0] - y[0]) + abs(x[1] - y[1]) < EPS
-
-    def L1(point_a, point_b):
-        return abs(point_a[0] - point_b[0]) + abs(point_a[1] - point_b[1])
-
-    def L2(point_a, point_b):
-        return (point_a[0] - point_b[0])*(point_a[0] - point_b[0]) + (point_a[1] - point_b[1])*(point_a[1] - point_b[1])
+        return np.allclose(x, y, atol=EPS)
 
     # Step 1: Parse the word and build graph adjacency
     letters = list(set(word))
@@ -48,26 +43,30 @@ def sag2svg(word: list, output_file: str) -> None:
     
     # Step 2: BFS to assign vertex coordinates
     visited = [word[0]]
-    vertex_coordinates = {word[0]: (0.0, 0.0)}
+    vertex_coordinates = {word[0]: np.array([0.0, 0.0])}
     queue = deque([word[0]])
     
     def get_unoccupied_points(vertex):
         """Get 4 unoccupied integer neighbouring ``vertex`` in L1 distance order"""
-        x, y = vertex_coordinates[vertex]
         candidates = []
         dist = 1
         while len(candidates) < 4:
+            cur_candidates = []
             for dx in range(0, dist + 1):
                 dy = dist - dx
-                signs = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+                delta = np.array([dx, dy])
+                signs = [np.array([1, 1]), np.array([1, -1]), np.array([-1, 1]), np.array([-1, -1])]
                 if dx == 0:
-                    signs = [(1, 1), (1, -1)]
+                    signs = [np.array([1, 1]), np.array([1, -1])]
                 if dy == 0:
-                    signs = [(1, 1), (-1, 1)]
-                for sx, sy in signs:
-                    point = (x + SCALE*sx*dx, y + SCALE*sy*dy)
+                    signs = [np.array([1, 1]), np.array([-1, 1])]
+                for s in signs:
+                    point = np.array(vertex_coordinates[vertex] + SCALE * s * delta)
                     if not any(approx_equal(point, coord) for coord in vertex_coordinates.values()):
-                        candidates.append(point)       
+                        cur_candidates.append(point)
+
+            random.shuffle(cur_candidates)   
+            candidates = candidates + sorted(cur_candidates, key=lambda candidate: np.linalg.norm(candidate, ord=2))       
             dist += 1
 
         return candidates[:4]
@@ -75,8 +74,6 @@ def sag2svg(word: list, output_file: str) -> None:
     while len(queue) > 0:
         current = queue.popleft()
         candidates = get_unoccupied_points(vertex=current)
-        random.shuffle(candidates)
-        candidates = sorted(candidates, key=lambda candidate: int(1e10)*(L1(candidate, vertex_coordinates[current])) + L2(candidate, (0, 0)))
         for neighbor in adjacency[current]:
             if neighbor not in visited:
                 vertex_coordinates[neighbor] = candidates.pop(0)
@@ -86,10 +83,10 @@ def sag2svg(word: list, output_file: str) -> None:
     for vertex, (x, y) in vertex_coordinates.items():
         if int(abs(y)/SCALE + EPS)%2 == 1:
             y += SCALE * DISTORTION_Y
-            vertex_coordinates[vertex] = (x, y)
+            vertex_coordinates[vertex] = np.array([x, y])
         if int(abs(x)/SCALE + EPS)%2 == 1:
             x += SCALE * DISTORTION_X
-            vertex_coordinates[vertex] = (x, y)
+            vertex_coordinates[vertex] = np.array([x, y])
 
     # Step 3: Define allowed directions (angles)
     # Solutions of (z^12 - 1)/(z^4 - 1) = 0
@@ -97,10 +94,9 @@ def sag2svg(word: list, output_file: str) -> None:
     allowed_directions = []
     for angle_degrees in [30 * index for index in range(12) if (4*index) % 12]: #[30, 60, 120, 150, 210, 240, 300, 330]
         angle = math.radians(angle_degrees) 
-        allowed_directions.append((L * SCALE * math.sin(angle), L * SCALE * math.cos(angle)))
+        allowed_directions.append(L * SCALE * np.array([math.sin(angle), math.cos(angle)]))
     
     # Step 4: Determine the control points of cubic bezier curves
-
     # A cubic bezier curve is defined by 4 points
     # P0 and P3 are the endpoints of an edge
     # vector P1 - P0 is colinear with the derivative of the curve in P0
@@ -108,63 +104,40 @@ def sag2svg(word: list, output_file: str) -> None:
 
     start_control_point = {}    #P1
     end_control_point = {}      #P2
-
         
     def get_unoccupied_directions(vertex):
         occupied_control_points = list(start_control_point.values()) + list(end_control_point.values())
 
         def is_occupied(direction):
-            point_a = tuple(v + d for d, v in zip(direction, vertex_coordinates[vertex])) # vertex + direction
-            point_b = tuple(v - d for d, v in zip(direction, vertex_coordinates[vertex])) # vertex - direction
             return any([
-                any(approx_equal(point_a, control_point) for control_point in occupied_control_points),
-                any(approx_equal(point_b, control_point) for control_point in occupied_control_points)   
+                any(approx_equal(vertex_coordinates[vertex] + direction, control_point) for control_point in occupied_control_points),
+                any(approx_equal(vertex_coordinates[vertex] - direction, control_point) for control_point in occupied_control_points)   
             ])
 
         return [direction for direction in allowed_directions if not is_occupied(direction)]
     
-    def best_direction(vectors, candidates):
-        def scalar_product(point_a, point_b):
-            x_a, y_a = point_a
-            x_b, y_b = point_b
-            return x_a * x_b + y_a * y_b
-        
+    def best_direction(neighbour_vectors, candidates):
         def key(candidate):
-            if len(vectors) == 1:
-                return scalar_product(vectors[0], candidate)
-            return min(scalar_product(vectors[0], candidate), - scalar_product(vectors[1], candidate))
-
+            return np.dot(neighbour_vectors[0], candidate) if len(neighbour_vectors) == 1 else min(np.dot(neighbour_vectors[0], candidate), - np.dot(neighbour_vectors[1], candidate))
         return max(candidates, key=key)
-    
-    def get_symmetric(point, vector):
-        return tuple(2*p - v for p, v in zip(point, vector))
 
-    def get_vectors(vertex, indexes):
-        return list(map(
-            lambda v: tuple(x - cur for x, cur in zip(v, vertex_coordinates[word[vertex]])),
-            [vertex_coordinates[word[index]] for index in indexes if index < len(word) and index >= 0]
-        ))
+    def get_new_control_point(vertex):
+        unoccupied_directions = get_unoccupied_directions(vertex=word[vertex])
+        return {"start": vertex_coordinates[word[vertex]] + best_direction(
+                    [vertex_coordinates[word[index]] - vertex_coordinates[word[vertex]] for index in [vertex + 1, vertex - 1] if index < len(word) and index >= 0],
+                    unoccupied_directions
+                ), 
+                "end":   vertex_coordinates[word[vertex]] + best_direction(
+                    [vertex_coordinates[word[index]] - vertex_coordinates[word[vertex]] for index in [vertex - 1, vertex + 1] if index < len(word) and index >= 0],
+                    unoccupied_directions
+                )}
+
+    def get_sym(point, vector):
+        return 2 * point - vector
 
     for i in range(0, len(word) - 1):
-        start_control_point[i] = get_symmetric(point=vertex_coordinates[word[i]], vector=end_control_point[i - 1]) if i - 1 in end_control_point else tuple(
-            x + y for x, y in zip(
-                vertex_coordinates[word[i]],
-                best_direction(
-                    get_vectors(i, [i + 1, i - 1]),
-                    get_unoccupied_directions(vertex=word[i])
-                )
-            )
-        )
-        
-        end_control_point[i] = get_symmetric(point=vertex_coordinates[word[i + 1]], vector=start_control_point[i + 1]) if i + 1 in start_control_point else tuple(
-            x + y for x, y in zip(
-                vertex_coordinates[word[i + 1]], 
-                best_direction(
-                    get_vectors(i + 1, [i, i + 2]),
-                    get_unoccupied_directions(vertex=word[i + 1])
-                )
-            )
-        )
+        start_control_point[i] = get_sym(vertex_coordinates[word[i]], end_control_point[i - 1]) if i - 1 in end_control_point else get_new_control_point(i)["start"]
+        end_control_point[i] = get_sym(vertex_coordinates[word[i + 1]], start_control_point[i + 1]) if i + 1 in start_control_point else get_new_control_point(i + 1)["end"]
 
     cubic_bezier_curves = [(vertex_coordinates[word[i]], start_control_point[i], end_control_point[i], vertex_coordinates[word[i + 1]]) for i in range(0, len(word) - 1)]
 

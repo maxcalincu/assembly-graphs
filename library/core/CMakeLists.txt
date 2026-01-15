@@ -11,6 +11,8 @@ target_include_directories(core PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+add_subdirectory(scripts)
+
 add_catch(test_core
     src/test_basics.cpp
     src/test_sag_with_endpoints.cpp

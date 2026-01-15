@@ -21,6 +21,7 @@ SetPointer SymGreedySetBuilder::Build(const SAGWithEndpoints& graph) const {
 
     auto forwards = sb.Build(graph);
     auto backwards = sb.Build(copy);
+    backwards->ReverseGraph();
     return forwards->GetNumberOfPaths() < backwards->GetNumberOfPaths() ? forwards : backwards;
 }
 

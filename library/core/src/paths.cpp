@@ -60,7 +60,7 @@ bool SetOfSimplePaths<SAGWithEndpoints>::Contains(const Edge& edge) const {
         return next_edge.contains(xy);
     }
     return (GetEndpointEdge(x) == yx) || (GetEndpointEdge(x) == xy);
-} 
+}
 
 bool SetOfSimplePaths<SAGWithEndpoints>::IsInsertionValid(Edge xy) const {
     auto check = [&](const Vertex& x_, const Vertex y_){
@@ -83,6 +83,10 @@ bool SetOfSimplePaths<SAGWithEndpoints>::IsInsertionValid(Edge xy) const {
                 check(x, y) ||
                 check(y, x)
             );
+}
+
+void SetOfSimplePaths<SAGWithEndpoints>::ReverseGraph() {
+    graph.Reverse();
 }
 
 void SetOfSimplePaths<SAGWithEndpoints>::InsertEdge(Edge xy) {

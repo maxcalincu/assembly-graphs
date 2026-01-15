@@ -12,9 +12,28 @@ class SetOfSimplePaths<SAGWithEndpoints> {
     using Edge = SAGWithEndpoints::Edge;
     using ECyc = SAGWithEndpoints::ECyc;
 public:
+    friend std::ostream& operator<<(std::ostream& os, const SetOfSimplePaths<SAGWithEndpoints>& set) {
+        size_t counter = 0;
+        std::map<Vertex, size_t> bijection;
+        auto& graph = set.graph;
+        
+        os << "SetOfSimplePaths(";
+        for (auto edge = graph.GetKthEdge(0); edge != graph.GetLastEdge(); edge = set.graph.TransversalAdvance(edge)) {
+            if (!bijection.contains(edge.GetHead())) {
+                bijection[edge.GetHead()] = ++counter;
+            }
+            if (edge != graph.GetKthEdge(0)) {
+                os << (set.Contains(edge) ? " - " : " ");
+            }
+            os << bijection[edge.GetHead()];
+        }
+        os << ")";
+        return os;
+    }
     SetOfSimplePaths(const SAGWithEndpoints& graph);
     void InsertEdge(Edge edge);
     void RemoveEdge(Edge edge);
+    void ReverseGraph();
     bool IsInsertionValid(Edge edge) const;
     size_t GetNumberOfPaths() const;
     size_t GetNumberOfVertices() const;

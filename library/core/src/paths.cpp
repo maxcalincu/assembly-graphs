@@ -1,47 +1,47 @@
 #include <core/paths.h>
 
-size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfPaths() const {
+size_t SetOfPolygonalPaths<SAGWithEndpoints>::GetNumberOfPaths() const {
     return (endpoint_edges.size()/2) + GetNumberOfDots();
 }
 
-size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfVertices() const {
+size_t SetOfPolygonalPaths<SAGWithEndpoints>::GetNumberOfVerticesCovered() const {
     return covered_vertices.size();
 }
 
-size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfDots() const {
-    return graph.GetSize() - GetNumberOfVertices();
+size_t SetOfPolygonalPaths<SAGWithEndpoints>::GetNumberOfDots() const {
+    return graph.GetSize() - GetNumberOfVerticesCovered();
 }
 
-SetOfSimplePaths<SAGWithEndpoints>::SetOfSimplePaths(const SAGWithEndpoints& graph): graph(graph) {};
+SetOfPolygonalPaths<SAGWithEndpoints>::SetOfPolygonalPaths(const SAGWithEndpoints& graph): graph(graph) {};
 
 
-size_t SetOfSimplePaths<SAGWithEndpoints>::GetNumberOfEdges() const {
+size_t SetOfPolygonalPaths<SAGWithEndpoints>::GetNumberOfEdges() const {
     return next_edge.size()/2 + endpoint_edges.size()/2;
 }
 
-bool SetOfSimplePaths<SAGWithEndpoints>::IsPathEndpoint(const Vertex& vertex) const {
+bool SetOfPolygonalPaths<SAGWithEndpoints>::IsPathEndpoint(const Vertex& vertex) const {
     return other_endpoint.contains(vertex);
 }
 
-bool SetOfSimplePaths<SAGWithEndpoints>::IsCovered(const Vertex& vertex) const {
+bool SetOfPolygonalPaths<SAGWithEndpoints>::IsCovered(const Vertex& vertex) const {
     return covered_vertices.contains(vertex);
 }
 
-TEdge<SAGWithEndpoints> SetOfSimplePaths<SAGWithEndpoints>::GetEndpointEdge(const Vertex& vertex) const {
+TEdge<SAGWithEndpoints> SetOfPolygonalPaths<SAGWithEndpoints>::GetEndpointEdge(const Vertex& vertex) const {
     if (!IsPathEndpoint(vertex)) {
         throw std::runtime_error("GetEndpointEdge: vertex isn't an endpoint");
     }
     return endpoint_edges.at(vertex);
 }
 
-TVertex<SAGWithEndpoints> SetOfSimplePaths<SAGWithEndpoints>::GetOtherEndpoint(const Vertex& vertex) const {
+TVertex<SAGWithEndpoints> SetOfPolygonalPaths<SAGWithEndpoints>::GetOtherEndpoint(const Vertex& vertex) const {
     if (!IsPathEndpoint(vertex)) {
         throw std::runtime_error("GetOtherEndpoint: vertex isn't an endpoint");
     }
     return other_endpoint.at(vertex);
 }
 
-TEdge<SAGWithEndpoints> SetOfSimplePaths<SAGWithEndpoints>::GetNextPathEdge(const Edge& edge) const {
+TEdge<SAGWithEndpoints> SetOfPolygonalPaths<SAGWithEndpoints>::GetNextPathEdge(const Edge& edge) const {
     if (!next_edge.contains(edge)) {
         throw std::runtime_error("GetNextPathEdge: vertex isn't an endpoint");
     }
@@ -50,7 +50,7 @@ TEdge<SAGWithEndpoints> SetOfSimplePaths<SAGWithEndpoints>::GetNextPathEdge(cons
     return next;
 }
 
-bool SetOfSimplePaths<SAGWithEndpoints>::Contains(const Edge& edge) const {
+bool SetOfPolygonalPaths<SAGWithEndpoints>::Contains(const Edge& edge) const {
     auto xy = edge, yx = edge; yx.SwitchOrientation();
     auto x = xy.GetTail(), y = xy.GetHead();
     if (!IsPathEndpoint(x)) {
@@ -62,7 +62,7 @@ bool SetOfSimplePaths<SAGWithEndpoints>::Contains(const Edge& edge) const {
     return (GetEndpointEdge(x) == yx) || (GetEndpointEdge(x) == xy);
 }
 
-bool SetOfSimplePaths<SAGWithEndpoints>::IsInsertionValid(Edge xy) const {
+bool SetOfPolygonalPaths<SAGWithEndpoints>::IsInsertionValid(Edge xy) const {
     auto check = [&](const Vertex& x_, const Vertex y_){
         if (!IsPathEndpoint(x_)) {
             return IsCovered(x_);
@@ -85,11 +85,11 @@ bool SetOfSimplePaths<SAGWithEndpoints>::IsInsertionValid(Edge xy) const {
             );
 }
 
-void SetOfSimplePaths<SAGWithEndpoints>::ReverseGraph() {
+void SetOfPolygonalPaths<SAGWithEndpoints>::ReverseGraph() {
     graph.Reverse();
 }
 
-void SetOfSimplePaths<SAGWithEndpoints>::InsertEdge(Edge xy) {
+void SetOfPolygonalPaths<SAGWithEndpoints>::InsertEdge(Edge xy) {
     if (!IsInsertionValid(xy)) {
         throw std::runtime_error("InsertEdge: insertion isn't valid");
     }
@@ -144,7 +144,7 @@ void SetOfSimplePaths<SAGWithEndpoints>::InsertEdge(Edge xy) {
     other_endpoint.emplace(other_y, other_x);
 }
 
-void SetOfSimplePaths<SAGWithEndpoints>::RemoveEdge(Edge xy) {
+void SetOfPolygonalPaths<SAGWithEndpoints>::RemoveEdge(Edge xy) {
     if (!Contains(xy)) {
         throw std::runtime_error("RemoveEdge: set doesn't have xy");
     }

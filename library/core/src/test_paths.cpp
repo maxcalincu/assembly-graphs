@@ -5,7 +5,7 @@
 using Vertex = TVertex<SAGWithEndpoints>;
 using Edge = TEdge<SAGWithEndpoints>;
 using ECyc = TECyc<SAGWithEndpoints>;
-using Set = SetOfSimplePaths<SAGWithEndpoints>;
+using Set = SetOfPolygonalPaths<SAGWithEndpoints>;
 
 TEST_CASE("Simple") {
     SAGWithEndpoints graph(0, {1, 2, 1, 2});
@@ -28,7 +28,7 @@ TEST_CASE("Simple") {
     REQUIRE(set.IsInsertionValid(graph.GetKthEdge(2)));
     REQUIRE_FALSE(set.GetNumberOfDots() == 0);
     set.InsertEdge(graph.GetKthEdge(1));
-    REQUIRE(set.GetNumberOfVertices() == 2);
+    REQUIRE(set.GetNumberOfVerticesCovered() == 2);
     REQUIRE(set.GetNumberOfEdges() == 1);
     REQUIRE(set.GetNumberOfPaths() == 2);
     REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(0).GetHead()));
@@ -38,7 +38,7 @@ TEST_CASE("Simple") {
     REQUIRE_FALSE(set.IsInsertionValid(graph.GetKthEdge(5)));
     REQUIRE_FALSE(set.GetNumberOfDots() == 0);
     set.InsertEdge(graph.GetKthEdge(4));
-    REQUIRE(set.GetNumberOfVertices() == 3);
+    REQUIRE(set.GetNumberOfVerticesCovered() == 3);
     REQUIRE(set.GetNumberOfEdges() == 2);
     REQUIRE(set.GetNumberOfPaths() == 1);
     REQUIRE(set.IsPathEndpoint(graph.GetKthEdge(2).GetHead()));

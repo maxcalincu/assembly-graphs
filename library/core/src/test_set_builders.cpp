@@ -4,7 +4,7 @@
 using Vertex = TVertex<SAGWithEndpoints>;
 using Edge = TEdge<SAGWithEndpoints>;
 using ECyc = TECyc<SAGWithEndpoints>;
-using Set = SetOfSimplePaths<SAGWithEndpoints>;
+using Set = SetOfPolygonalPaths<SAGWithEndpoints>;
 
 const SAGWithEndpoints loop(0, {1, 1});
 const SAGWithEndpoints pretzel(1, {1, 2, 1, 2});

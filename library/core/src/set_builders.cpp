@@ -3,7 +3,7 @@
 #include <functional>
 
 SetPointer GreedySetBuilder::Build(const SAGWithEndpoints& graph) const {
-    SetPointer set = std::make_shared<SetOfSimplePaths<SAGWithEndpoints>>(graph);
+    SetPointer set = std::make_shared<SetOfPolygonalPaths<SAGWithEndpoints>>(graph);
     if (graph.GetSize() == 0) {
         return set;
     }
@@ -26,8 +26,8 @@ SetPointer SymGreedySetBuilder::Build(const SAGWithEndpoints& graph) const {
 }
 
 SetPointer ExactSetBuilder::Build(const SAGWithEndpoints& graph) const {
-    SetPointer set = std::make_shared<SetOfSimplePaths<SAGWithEndpoints>>(graph);
-    SetPointer best_result = std::make_shared<SetOfSimplePaths<SAGWithEndpoints>>(graph); 
+    SetPointer set = std::make_shared<SetOfPolygonalPaths<SAGWithEndpoints>>(graph);
+    SetPointer best_result = std::make_shared<SetOfPolygonalPaths<SAGWithEndpoints>>(graph); 
     std::function<void(const TEdge<SAGWithEndpoints>&, size_t)> recursion = [&](const TEdge<SAGWithEndpoints>& edge, size_t edges_left) {
         if (edges_left == 0) {
             if (best_result->GetNumberOfPaths() > set->GetNumberOfPaths()) {

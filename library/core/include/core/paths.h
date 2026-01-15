@@ -4,20 +4,20 @@
 #include <set>
 
 template<SimpleAssemblyGraphImpl SAG>
-class SetOfSimplePaths;
+class SetOfPolygonalPaths;
 
 template<>
-class SetOfSimplePaths<SAGWithEndpoints> {
+class SetOfPolygonalPaths<SAGWithEndpoints> {
     using Vertex = SAGWithEndpoints::Vertex;
     using Edge = SAGWithEndpoints::Edge;
     using ECyc = SAGWithEndpoints::ECyc;
 public:
-    friend std::ostream& operator<<(std::ostream& os, const SetOfSimplePaths<SAGWithEndpoints>& set) {
+    friend std::ostream& operator<<(std::ostream& os, const SetOfPolygonalPaths<SAGWithEndpoints>& set) {
         size_t counter = 0;
         std::map<Vertex, size_t> bijection;
         auto& graph = set.graph;
         
-        os << "SetOfSimplePaths(";
+        os << "SetOfPolygonalPaths(";
         for (auto edge = graph.GetKthEdge(0); edge != graph.GetLastEdge(); edge = set.graph.TransversalAdvance(edge)) {
             if (!bijection.contains(edge.GetHead())) {
                 bijection[edge.GetHead()] = ++counter;
@@ -30,13 +30,13 @@ public:
         os << ")";
         return os;
     }
-    SetOfSimplePaths(const SAGWithEndpoints& graph);
+    SetOfPolygonalPaths(const SAGWithEndpoints& graph);
     void InsertEdge(Edge edge);
     void RemoveEdge(Edge edge);
     void ReverseGraph();
     bool IsInsertionValid(Edge edge) const;
     size_t GetNumberOfPaths() const;
-    size_t GetNumberOfVertices() const;
+    size_t GetNumberOfVerticesCovered() const;
     size_t GetNumberOfEdges() const;
     size_t GetNumberOfDots() const;
 

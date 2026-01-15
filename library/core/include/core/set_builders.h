@@ -4,7 +4,7 @@
 #include <memory>
 
 
-using SetPointer = std::shared_ptr<SetOfSimplePaths<SAGWithEndpoints>>;
+using SetPointer = std::shared_ptr<SetOfPolygonalPaths<SAGWithEndpoints>>;
 
 class ISetBuilder {
 public:

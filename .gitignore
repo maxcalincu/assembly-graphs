@@ -6,3 +6,4 @@ junk/
 scripts/*.svg
 scripts/*.ipynb
 *__pycache__
+*.txt

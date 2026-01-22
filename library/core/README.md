@@ -20,3 +20,10 @@ make -j8 test_core
 make -j8 script_name
 ./script_name --help
 ```
+
+CLI реализован на основе ``Boost::program_options``. Если буст еще не установлен, исправить это можно так:
+
+```bash
+sudo apt update
+sudo apt install libboost-all-dev
+```

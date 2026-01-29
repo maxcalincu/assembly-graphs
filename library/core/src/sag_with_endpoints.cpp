@@ -327,7 +327,7 @@ TEdge<SAGWithEndpoints> SAGWithEndpoints::GetKthEdge(size_t k) const {
 }
 
 bool SAGWithEndpoints::HasLoop() const {
-    for (auto edge = GetKthEdge(0); edge != GetLastEdge(); TransversalAdvance(edge)) {
+    for (auto edge = GetKthEdge(0); edge != GetLastEdge(); edge = TransversalAdvance(edge)) {
         if (edge.IsLoop()) {
             return true;
         }

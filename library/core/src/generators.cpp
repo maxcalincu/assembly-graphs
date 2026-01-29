@@ -1,6 +1,6 @@
 #include <core/generators.h>
 
-TEdge<SAGWithEndpoints> SAGGenerator<SAGWithEndpoints>::RemoveFirstVertex(SAGWithEndpoints& graph) {
+TEdge<SAGWithEndpoints> SAGGenerator<SAGWithEndpoints>::RemoveFirstVertex(SAGWithEndpoints& graph) const {
     if (graph.GetSize() == 0) {
         throw std::runtime_error("RemoveFirstVertex");
     }
@@ -10,7 +10,7 @@ TEdge<SAGWithEndpoints> SAGGenerator<SAGWithEndpoints>::RemoveFirstVertex(SAGWit
     return (x == graph.GetKthEdge(0) ? y : x);
 }
 
-SAGWithEndpoints SAGGenerator<SAGWithEndpoints>::GetLexicographicallySmallest(size_t graph_id, size_t n) {
+SAGWithEndpoints SAGGenerator<SAGWithEndpoints>::GetLexicographicallySmallest(size_t graph_id, size_t n) const {
     SAGWithEndpoints graph(graph_id);
     while (graph.GetSize() < n) {
         graph.InsertVertex(graph.GetStartEdge(), graph.GetStartEdge());
@@ -18,7 +18,7 @@ SAGWithEndpoints SAGGenerator<SAGWithEndpoints>::GetLexicographicallySmallest(si
     return graph;
 }
 
-bool SAGGenerator<SAGWithEndpoints>::Advance(SAGWithEndpoints& graph) {
+bool SAGGenerator<SAGWithEndpoints>::Advance(SAGWithEndpoints& graph) const {
     size_t n = graph.GetSize();
     while (graph.GetSize() > 0) {
         auto previous_edge = RemoveFirstVertex(graph);

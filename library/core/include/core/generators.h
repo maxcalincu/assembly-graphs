@@ -13,10 +13,10 @@ class SAGGenerator<SAGWithEndpoints> {
 
     public:
 
-    bool Advance(SAGWithEndpoints& graph);
-    SAGWithEndpoints GetLexicographicallySmallest (size_t graph_id, size_t n);
+    bool Advance(SAGWithEndpoints& graph) const;
+    SAGWithEndpoints GetLexicographicallySmallest (size_t graph_id, size_t n) const;
 
     private:
-    Edge RemoveFirstVertex(SAGWithEndpoints& graph);
+    Edge RemoveFirstVertex(SAGWithEndpoints& graph) const;
 
 };

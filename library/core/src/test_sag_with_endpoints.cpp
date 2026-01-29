@@ -93,6 +93,7 @@ TEST_CASE("Modification") {
     );
 
     SAGWithEndpoints example(0, {1, 1, 2, 3, 3, 2});
+    REQUIRE(example.HasLoop());
 
     REQUIRE(example.GetStartEdge().GetHead() != example.GetLastEdge().GetHead());
 
@@ -109,7 +110,9 @@ TEST_CASE("Modification") {
     SAGWithEndpoints graph(3, {});
     graph.InsertVertex(graph.GetStartEdge(), graph.GetLastEdge());
     REQUIRE(graph == SAGWithEndpoints{1, {1, 1}});
+    REQUIRE(graph.HasLoop());
     graph = SAGWithEndpoints(0, {});
+    REQUIRE_FALSE(graph.HasLoop());
     Vertex vertex = graph.InsertVertex(graph.GetStartEdge(), graph.GetStartEdge());
     REQUIRE(graph == SAGWithEndpoints{1, {1, 1}});
     REQUIRE(graph.GetStartEdge().GetTail() == vertex);
@@ -121,6 +124,7 @@ TEST_CASE("Modification") {
     REQUIRE_NOTHROW(graph.GetKthEdge(3));
     graph.InsertVertex(graph.GetKthEdge(1), graph.GetKthEdge(3));
     REQUIRE(graph == SAGWithEndpoints{1, {2, 3, 2, 1, 3, 1}});
+    REQUIRE_FALSE(graph.HasLoop());
 
     check_polarity_invariant(graph);
 

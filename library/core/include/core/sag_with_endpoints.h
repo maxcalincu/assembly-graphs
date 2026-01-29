@@ -15,6 +15,7 @@ public:
     bool IsIsomorphic(const SAGWithEndpoints& other, bool reverse = false) const;
     bool IsEndpoint(const Vertex& vertex) const;
     bool HasVertex(const Vertex& vertex) const override;
+    bool HasLoop() const;
 
     void Reverse();
     std::pair<Edge, Edge> RemoveVertex(const Vertex& vertex) override;

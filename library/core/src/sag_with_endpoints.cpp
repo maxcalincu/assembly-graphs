@@ -326,6 +326,15 @@ TEdge<SAGWithEndpoints> SAGWithEndpoints::GetKthEdge(size_t k) const {
     return edge;
 }
 
+bool SAGWithEndpoints::HasLoop() const {
+    for (auto edge = GetKthEdge(0); edge != GetLastEdge(); TransversalAdvance(edge)) {
+        if (edge.IsLoop()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 SAGWithEndpoints& SAGWithEndpoints::InteriorSaturate(const SAGWithEndpoints subgraph) {
     if (GetSize() == 0) {
         return *this;

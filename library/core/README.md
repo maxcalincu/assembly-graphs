@@ -2,28 +2,40 @@
 
 [code overview](./docs/code.md)
 
-[scripts overview](./docs/scripts.md)
+[tools overview](./docs/tools.md)
 
-### Как собрать и запустить тесты library/core
+## Требования
+Чтобы успешно запустить проект требуется:
+- ОС: Debian, Ubuntu или совместимый Linux-дистрибутив
+- Компилятор: GCC/Clang для C++20 и выше
+- Зависимости: Библиотека **Boost** (требуется компонент ``program_options``)
+
+
+Если вы не хотите настраивать локальное окружение, воспользуйтесь готовым виртуальным окружением в [**Github Codebase**](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository)
+
+Установка зависимостей:
+
+```bash
+sudo apt update && sudo apt install libboost-all-dev
+```
+
+## Как собрать проект и запустить все тесты
 
 Из корневой директории запускаем:
 
 ```bash
 ./build.sh && cd build
-make -j8 test_core
-./test_core
+make -j8 test_core && ./test_core
 ```
 
-Теперь запускаем произвольный скрипт
+## Запускаем произвольный тул
+
+Из **build** директории запускаем:
 
 ```bash
-make -j8 script_name
-./script_name --help
+make -j8 ${tool_name}
+./${tool_name} --help
 ```
 
-CLI реализован на основе ``Boost::program_options``. Если буст еще не установлен, исправить это можно так:
-
-```bash
-sudo apt update
-sudo apt install libboost-all-dev
-```
+Доступные тулы:
+- construct_set

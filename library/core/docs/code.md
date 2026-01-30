@@ -55,4 +55,4 @@
 
 ## src/set_builders
 
-Для ознакомления см. описание `scripts/construct_set`
+Для ознакомления см. описание `tools/construct_set`

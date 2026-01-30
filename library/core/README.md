@@ -37,5 +37,6 @@ make -j8 ${tool_name}
 ./${tool_name} --help
 ```
 
-Доступные тулы:
+## Доступные тулзы
 - construct_set
+- search_tw

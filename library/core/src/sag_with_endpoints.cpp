@@ -1,8 +1,6 @@
-#include <array>
+#include <sstream>
 
 #include <core/sag_with_endpoints.h>
-#include <stdexcept>
-#include <utility>
 
 size_t SAGWithEndpoints::GetSize() const {
     return cyclic_order.size();
@@ -248,17 +246,27 @@ std::pair<TEdge<SAGWithEndpoints>, TEdge<SAGWithEndpoints>> SAGWithEndpoints::In
 
 std::vector<size_t> SAGWithEndpoints::ConvertToVector() const {
     std::map<Vertex, size_t> bijection;
-    Edge edge = GetKthEdge(0);
     size_t counter = 0;
     std::vector<size_t> result;
     result.reserve(2 * GetSize());
-    for (; edge != LastEdge; edge = TransversalAdvance(edge)) {
+    for (auto edge = GetKthEdge(0); edge != GetLastEdge(); edge = TransversalAdvance(edge)) {
         if (!bijection.contains(edge.GetHead())) {
             bijection.emplace(edge.GetHead(), ++counter);
         }
         result.push_back(bijection.at(edge.GetHead()));
     }
     return result;
+}
+
+std::string SAGWithEndpoints::ConvertToString(const std::string& separator) const {
+    auto v = ConvertToVector();
+    std::ostringstream oss;
+    
+    for (size_t i = 0; i < v.size(); ++i) {
+        oss << v[i] << (i + 1 < v.size() ? separator : "");
+    }
+    
+    return oss.str();
 }
 
 SAGWithEndpoints::SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& two_word): SAGWithEndpoints(graph_id) {

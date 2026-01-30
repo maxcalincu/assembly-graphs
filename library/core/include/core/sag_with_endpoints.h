@@ -10,6 +10,7 @@ public:
     Edge GetLastEdge() const;
     Polarity GetOrientation() const;
     std::vector<size_t> ConvertToVector() const override;
+    std::string ConvertToString(const std::string& separator) const override;
     
     bool operator==(const SAGWithEndpoints& other) const override;
     bool IsIsomorphic(const SAGWithEndpoints& other, bool reverse = false) const;
@@ -43,13 +44,7 @@ private:
     Edge LastEdge;
 public:
     friend std::ostream& operator<<(std::ostream& os, const SAGWithEndpoints& graph) {
-        auto vector = graph.ConvertToVector();
-        os << "SAGWithEndpoints(" << graph.graph_id << ", {";
-        for (size_t i = 0; i < vector.size(); ++i) {
-            os << vector[i] << (i + 1 == vector.size() ? "" : " ");
-        }
-        os << "})";
-        return os;
+        return os << "SAGWithEndpoints(" << graph.graph_id << ", {" << graph.ConvertToString(", ") << "})";
     }
 };
 

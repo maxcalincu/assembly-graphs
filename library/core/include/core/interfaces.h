@@ -37,4 +37,5 @@ public:
     virtual bool operator==(const TW& other) const = 0;
     virtual std::size_t GetSize() const = 0;
     virtual std::vector<size_t> ConvertToVector() const = 0;
+    virtual std::string ConvertToString(const std::string& separator) const = 0;
 };

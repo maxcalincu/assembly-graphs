@@ -5,7 +5,7 @@ using Vertex = TVertex<SAGWithEndpoints>;
 using Edge = TEdge<SAGWithEndpoints>;
 using ECyc = TECyc<SAGWithEndpoints>;
 
-auto generator = SAGGenerator<SAGWithEndpoints>();
+auto generator = SAGGenerator();
 
 
 TEST_CASE("Lexicographically Smallest") {

@@ -14,10 +14,4 @@ include_directories(tools/commons)
 include(tools/cmake/TestSolution.cmake)
 include(tools/cmake/BuildFlags.cmake)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-O3)
-else()
-    add_compile_options(-O0)
-endif()
-
 add_subdirectory(library)

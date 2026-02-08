@@ -4,6 +4,7 @@
 
 class SAGWithEndpoints: public ISimpleAssemblyGraph<SAGWithEndpoints>, public ITwoWord<SAGWithEndpoints> {
 public:
+    size_t GetGraphId() const;
     ECyc GetECyc(const Vertex& vertex) const override;
     size_t GetSize() const override;
     Edge GetStartEdge() const;
@@ -30,6 +31,7 @@ public:
 
     Edge GetKthEdge(size_t k) const;
     Edge TransversalAdvance(const Edge& edge) const;
+    size_t MinSubword() const;
 
 private:
     Tier MEXTier(const Vertex& central_vertex, const Vertex& incident_vertex) const;

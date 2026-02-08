@@ -228,3 +228,15 @@ TEST_CASE("Saturate") {
     graph.Saturate(graph);
     REQUIRE(graph == SAGWithEndpoints(0, {1, 1, 2, 3, 3, 2, 4, 4}));
 }
+
+TEST_CASE("MinSubword") {
+    REQUIRE(SAGWithEndpoints(0, {1, 1}).MinSubword() == 1);
+    REQUIRE(SAGWithEndpoints(0, {1, 2, 1, 2}).MinSubword() == 2);
+    REQUIRE(SAGWithEndpoints(0, {1, 2, 2, 1}).MinSubword() == 1);
+    REQUIRE(SAGWithEndpoints(0, {1, 1, 2, 2}).MinSubword() == 1);
+    REQUIRE(SAGWithEndpoints(0, {3,4,1,2,5,2,6,1,6,5,3,4}).MinSubword() == 4);
+    REQUIRE(SAGWithEndpoints(0, {1,2,3,4,3,4,5,2,6,1,6,5}).MinSubword() == 2);
+    REQUIRE(SAGWithEndpoints(0, {1,2,3,4,5,2,6,1,6,5,3,4}).MinSubword() == 6);
+    REQUIRE(SAGWithEndpoints(0, {1,2,1,3,2,4,3,4,11,12,11,13,12,13}).MinSubword() == 3);
+    REQUIRE(SAGWithEndpoints(0, {1,2,1,5,3,2,4,3,4,11,12,5,11,13,12,13}).MinSubword() == 8);
+}

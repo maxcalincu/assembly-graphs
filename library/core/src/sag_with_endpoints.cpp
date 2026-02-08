@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include <core/sag_with_endpoints.h>
+#include <stack>
 
 size_t SAGWithEndpoints::GetSize() const {
     return cyclic_order.size();
@@ -332,6 +333,69 @@ TEdge<SAGWithEndpoints> SAGWithEndpoints::GetKthEdge(size_t k) const {
         edge = TransversalAdvance(edge);
     }
     return edge;
+}
+
+size_t SAGWithEndpoints::GetGraphId() const {
+    return graph_id;
+}
+
+size_t SAGWithEndpoints::MinSubword() const {
+    const auto tw = ConvertToVector();
+
+    std::vector<std::vector<size_t>> appearances(GetSize() + 1);
+    for (size_t appearance = 0; appearance < tw.size(); ++appearance) {
+        const auto& vertex = tw[appearance]; 
+        appearances[vertex].push_back(appearance);
+    }
+
+    std::vector<size_t> lower_vertex(GetSize() + 1), upper_vertex(GetSize() + 1);
+    std::stack<size_t> min_records, max_records;
+
+    for (size_t appearance = 0; appearance < tw.size(); ++appearance) {
+        const auto& cur_vertex = tw[appearance];
+        if (appearance == appearances[cur_vertex][0]) {
+            continue;
+        }
+        lower_vertex[cur_vertex] = cur_vertex;
+        while(!min_records.empty()) {
+            const auto& prev_vertex = min_records.top();
+            if (appearances[prev_vertex][1] < appearances[cur_vertex][0]) {
+                break;
+            }
+            min_records.pop();
+            if (appearances[lower_vertex[prev_vertex]][0] < appearances[lower_vertex[cur_vertex]][0]) {
+                lower_vertex[cur_vertex] = lower_vertex[prev_vertex];
+            }
+        }
+        min_records.push(cur_vertex);
+    }
+
+    for (size_t appearance = tw.size() - 1; appearance + 1 > 0; --appearance) {
+        const auto& cur_vertex = tw[appearance];
+        if (appearance == appearances[cur_vertex][1]) {
+            continue;
+        }
+        upper_vertex[cur_vertex] = cur_vertex;
+        while(!max_records.empty()) {
+            const auto& next_vertex = max_records.top();
+            if (appearances[cur_vertex][1] < appearances[next_vertex][0]) {
+                break;
+            }
+            max_records.pop();
+            if (appearances[upper_vertex[next_vertex]][1] > appearances[upper_vertex[cur_vertex]][1]) {
+                upper_vertex[cur_vertex] = upper_vertex[next_vertex];
+            }
+        }
+        max_records.push(cur_vertex);
+    }
+
+    size_t result = 2 * GetSize();
+    for (size_t vertex = 1; vertex <= GetSize(); ++vertex) {
+        if (upper_vertex[lower_vertex[vertex]] == vertex) {
+            result = std::min(result, appearances[vertex][1] - appearances[lower_vertex[vertex]][0] + 1);
+        }
+    }
+    return result/2;
 }
 
 bool SAGWithEndpoints::HasLoop() const {

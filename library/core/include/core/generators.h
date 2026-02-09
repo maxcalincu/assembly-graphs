@@ -26,8 +26,9 @@ namespace Details {
         static constexpr char OPENING_SYMBOL = '1';
         static constexpr char CLOSING_SYMBOL = '2';
         static constexpr char UNKNOWN_SYMBOL = '?';
+        static constexpr char SEPARATOR_SYMBOL = '-';
     public:
-        PatternMatcher(const std::string& pattern = "");
+        PatternMatcher(size_t n, const std::string& pattern = "");
         bool is_opening(size_t position) const { return !closing_positions.contains(position); }
         bool is_closing(size_t position) const { return !opening_positions.contains(position); }
     };

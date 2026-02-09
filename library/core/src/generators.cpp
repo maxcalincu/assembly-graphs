@@ -41,20 +41,27 @@ bool SAGGenerator::Advance(SAGWithEndpoints& graph) const {
     return false;
 }
 
-Details::PatternMatcher::PatternMatcher(const std::string& pattern)  {
+Details::PatternMatcher::PatternMatcher(size_t n, const std::string& pattern)  {
+    size_t cur = 0;
     for (size_t i = 0; i < pattern.size(); ++i) {
         switch (pattern[i]) {
             case OPENING_SYMBOL:
-                opening_positions.insert(i);
+                opening_positions.insert(cur++);
                 break;
             case CLOSING_SYMBOL:
-                closing_positions.insert(i);
+                closing_positions.insert(cur++);
                 break;
             case UNKNOWN_SYMBOL:
+                ++cur;
+                break;
+            case SEPARATOR_SYMBOL:
                 break;
             default:
                 throw std::runtime_error("FilteredSAGGenerator: pattern symbol wasn't recognised");
         }
+    }
+    if (cur != 2 * n && pattern.size() > 0) {
+        throw std::runtime_error("FilteredSAGGenerator: invalid pattern size");
     }
 };
 
@@ -112,11 +119,8 @@ FilteredSAGGenerator::FilteredSAGGenerator(size_t n, size_t min_sub_word, const 
     two_word(), left_bound(n + 1),
     appearances(n + 1),
 
-    pattern_matcher(pattern), 
+    pattern_matcher(n, pattern), 
     prefix_openings(2 * n) {
-        if (!pattern.empty() && pattern.size() != 2 * n) {
-            throw std::runtime_error("FilteredSAGGenerator: invalid pattern size");
-        }
         two_word.reserve(2 * n);
     }
 
@@ -125,15 +129,12 @@ bool FilteredSAGGenerator::Yield(SAGWithEndpoints& graph) {
         return false;
     }
 
-    // special_output.str("");
     do {
-        // special_output << "x";
         auto prev_option = two_word.empty() 
             ? std::optional<size_t>() 
             : two_word.back();
         PopAppearance();
         if (DFS(prev_option)) {
-            // special_output << "success\n";
             break;
         }
     } while (!two_word.empty());

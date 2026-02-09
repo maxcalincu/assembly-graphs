@@ -52,13 +52,13 @@ TEST_CASE("Advance") {
 
 TEST_CASE("PatternMatcher tests", "[PatternMatcher]") {
     SECTION("Empty pattern") {
-        Details::PatternMatcher matcher("");
+        Details::PatternMatcher matcher(5, "");
         REQUIRE(matcher.is_opening(0) == true);
         REQUIRE(matcher.is_closing(0) == true);
     }
     
     SECTION("Pattern with mixed symbols") {
-        Details::PatternMatcher matcher("1?2?12");
+        Details::PatternMatcher matcher(3, "1?2?12");
         
         // Position 0: '1' (opening)
         REQUIRE(matcher.is_opening(0) == true);
@@ -86,13 +86,19 @@ TEST_CASE("PatternMatcher tests", "[PatternMatcher]") {
     }
     
     SECTION("Invalid pattern throws exception") {
-        REQUIRE_THROWS_AS(Details::PatternMatcher("13"), std::runtime_error);
-        REQUIRE_THROWS_AS(Details::PatternMatcher("a1b2"), std::runtime_error);
-        REQUIRE_THROWS(Details::PatternMatcher("invalid"));
+        REQUIRE_THROWS(Details::PatternMatcher(1, "13"));
+        REQUIRE_THROWS(Details::PatternMatcher(2, "a1b2"));
+        REQUIRE_THROWS(Details::PatternMatcher(4, "invalid1"));
+        REQUIRE_THROWS(Details::PatternMatcher(100, "1212"));
+        
+        REQUIRE_NOTHROW(Details::PatternMatcher(0, "-"));
+        REQUIRE_NOTHROW(Details::PatternMatcher(2, "12-12"));
+        REQUIRE_NOTHROW(Details::PatternMatcher(2, "1-2-1-2"));
+        REQUIRE_NOTHROW(Details::PatternMatcher(2, "11-?--2"));
     }
     
     SECTION("Out of bounds position") {
-        Details::PatternMatcher matcher("1");
+        Details::PatternMatcher matcher(1, "11");
         REQUIRE(matcher.is_opening(100) == true);
         REQUIRE(matcher.is_closing(100) == true);
     }

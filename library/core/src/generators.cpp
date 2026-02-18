@@ -116,12 +116,12 @@ void Details::PersistentStack::restore_pop_sequence() {
 
 FilteredSAGGenerator::FilteredSAGGenerator(size_t n, size_t min_sub_word, const std::string& pattern): 
     n(n), min_sub_word(min_sub_word),
-    two_word(), left_bound(n + 1),
+    do_word(), left_bound(n + 1),
     appearances(n + 1),
 
     pattern_matcher(n, pattern), 
     prefix_openings(2 * n) {
-        two_word.reserve(2 * n);
+        do_word.reserve(2 * n);
     }
 
 bool FilteredSAGGenerator::Yield(SAGWithEndpoints& graph) {
@@ -130,30 +130,30 @@ bool FilteredSAGGenerator::Yield(SAGWithEndpoints& graph) {
     }
 
     do {
-        auto prev_option = two_word.empty() 
+        auto prev_option = do_word.empty() 
             ? std::optional<size_t>() 
-            : two_word.back();
+            : do_word.back();
         PopAppearance();
         if (DFS(prev_option)) {
             break;
         }
-    } while (!two_word.empty());
+    } while (!do_word.empty());
 
-    if (two_word.empty()) {
+    if (do_word.empty()) {
         exhausted = true;
         return false;
     }
 
-    graph = SAGWithEndpoints{graph.GetGraphId(), two_word};
+    graph = SAGWithEndpoints{graph.GetGraphId(), do_word};
     return true;
 }
 
 void FilteredSAGGenerator::PopAppearance() {
-    if (two_word.empty()) {
+    if (do_word.empty()) {
         return;
     }
-    auto vertex = two_word.back();
-    two_word.pop_back();
+    auto vertex = do_word.back();
+    do_word.pop_back();
 
     if (unpaired_vertices.contains(vertex)) {
         prefix_openings.update(appearances[vertex].first, -1);
@@ -166,7 +166,7 @@ void FilteredSAGGenerator::PopAppearance() {
 }
 
 void FilteredSAGGenerator::PushAppearance(size_t vertex) {
-    const size_t position = two_word.size();
+    const size_t position = do_word.size();
 
     if (unpaired_vertices.contains(vertex)) {
         appearances[vertex].second = position;
@@ -178,11 +178,11 @@ void FilteredSAGGenerator::PushAppearance(size_t vertex) {
         unpaired_vertices.insert(vertex);
         prefix_openings.update(appearances[vertex].first, 1);
     }
-    two_word.push_back(vertex);
+    do_word.push_back(vertex);
 }
 
 bool FilteredSAGGenerator::DFS(std::optional<size_t> prev_option) {
-    const auto position = two_word.size(); 
+    const auto position = do_word.size(); 
     if (position == 2 * n) {
         return true;
     }
@@ -202,7 +202,7 @@ bool FilteredSAGGenerator::DFS(std::optional<size_t> prev_option) {
     }
 
     if (pattern_matcher.is_opening(position)) {
-        auto new_vertex = 1 + (two_word.size() + unpaired_vertices.size())/2;
+        auto new_vertex = 1 + (do_word.size() + unpaired_vertices.size())/2;
         if ((prev_option.has_value() && prev_option.value() == new_vertex) || new_vertex > n) {
             return false;
         }

@@ -21,9 +21,9 @@
 
 Весь функционал реализован в ``src/set_builders.cpp``
 
-## search_tw
+## search_dow
 
-Ищет все два-слова с заданным размером и сборным числом (см. ``./search_tw --help``).
+Ищет все два-слова с заданным размером и сборным числом (см. ``./search_dow --help``).
 
 Опция ``--exclude-loops`` исключает из пространства поиска все два-слова что содержат петли.
 
@@ -32,6 +32,6 @@
 Пример использования (обе команды равносильны):
 
 ```bash
-./search_tw --exclude-loops 8 2
-./search_tw --exclude-loops -n 8 -k 2
+./search_dow --exclude-loops 8 2
+./search_dow --exclude-loops -n 8 -k 2
 ```

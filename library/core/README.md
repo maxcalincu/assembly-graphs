@@ -39,4 +39,4 @@ make -j8 ${tool_name}
 
 ## Доступные тулзы
 - construct_set
-- search_tw
+- search_dow

@@ -2,7 +2,7 @@
 
 #include <core/interfaces.h>
 
-class SAGWithEndpoints: public ISimpleAssemblyGraph<SAGWithEndpoints>, public ITwoWord<SAGWithEndpoints> {
+class SAGWithEndpoints: public ISimpleAssemblyGraph<SAGWithEndpoints>, public IDoubleOccurrenceWord<SAGWithEndpoints> {
 public:
     size_t GetGraphId() const;
     ECyc GetECyc(const Vertex& vertex) const override;
@@ -27,7 +27,7 @@ public:
     SAGWithEndpoints& InteriorSaturate(const SAGWithEndpoints subgraph);
 
     SAGWithEndpoints(size_t graph_id);
-    SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& two_word);
+    SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& do_word);
 
     Edge GetKthEdge(size_t k) const;
     Edge TransversalAdvance(const Edge& edge) const;

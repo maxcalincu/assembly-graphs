@@ -270,20 +270,20 @@ std::string SAGWithEndpoints::ConvertToString(const std::string& separator) cons
     return oss.str();
 }
 
-SAGWithEndpoints::SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& two_word): SAGWithEndpoints(graph_id) {
-    if (two_word.empty()) {
+SAGWithEndpoints::SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& do_word): SAGWithEndpoints(graph_id) {
+    if (do_word.empty()) {
         return;
     }
     std::map<size_t, Vertex> bijection;
-    for (auto letter : two_word) {
+    for (auto letter : do_word) {
         if (!bijection.contains(letter)) {
             bijection.emplace(letter, CreateVertex());
         }
     }
-    if (2 * bijection.size() != two_word.size()) {
-        throw std::runtime_error("SAGWithEndpoints constructor: non-valid two-word");
+    if (2 * bijection.size() != do_word.size()) {
+        throw std::runtime_error("SAGWithEndpoints constructor: non-valid double-occurrence-word");
     }
-    size_t n = two_word.size()/2;
+    size_t n = do_word.size()/2;
     std::map<Vertex, std::pair<Edge, Edge>> transversal_a, transversal_b;
     std::map<std::pair<Vertex, Vertex>, Tier> tiers;
     auto process = [&](const Vertex& x, const Vertex& o, const Vertex& y) {
@@ -299,28 +299,28 @@ SAGWithEndpoints::SAGWithEndpoints(size_t graph_id, const std::vector<size_t>& t
         auto edge_xo = Edge(x, o, tier_xo, Negative);
         auto edge_oy = Edge(o, y, tier_oy, Positive);
         if (transversal_b.contains(o)) {
-            throw std::runtime_error("SAGWithEndpoints constructor: non-valid two-word");
+            throw std::runtime_error("SAGWithEndpoints constructor: non-valid double-occurrence-word");
         }
         (transversal_a.contains(o) ? transversal_b : transversal_a).emplace( 
             o, std::make_pair(edge_xo, edge_oy)
         );
     };
-    tiers.emplace(std::make_pair(StartEdge.GetHead(), bijection.at(two_word[0])), Tier::A);
-    process(StartEdge.GetHead(), bijection.at(two_word[0]), bijection.at(two_word[1]));
+    tiers.emplace(std::make_pair(StartEdge.GetHead(), bijection.at(do_word[0])), Tier::A);
+    process(StartEdge.GetHead(), bijection.at(do_word[0]), bijection.at(do_word[1]));
     for (size_t i = 1; i < 2 * n - 1; ++i) {
-        process(bijection.at(two_word[i - 1]), bijection.at(two_word[i]), bijection.at(two_word[i + 1]));
+        process(bijection.at(do_word[i - 1]), bijection.at(do_word[i]), bijection.at(do_word[i + 1]));
     }
-    process(bijection.at(two_word[2 * n - 2]), bijection.at(two_word[2 * n - 1]), LastEdge.GetHead());
+    process(bijection.at(do_word[2 * n - 2]), bijection.at(do_word[2 * n - 1]), LastEdge.GetHead());
 
-    StartEdge = transversal_a.at(bijection.at(two_word[0])).first;
+    StartEdge = transversal_a.at(bijection.at(do_word[0])).first;
     StartEdge.SwitchOrientation();
     
-    LastEdge = transversal_b.at(bijection.at(two_word[2 * n - 1])).second;
+    LastEdge = transversal_b.at(bijection.at(do_word[2 * n - 1])).second;
     LastEdge.SwitchOrientation();
 
     for (auto [_, vertex] : bijection) {
         if (!transversal_a.contains(vertex) || !transversal_b.contains(vertex)) {
-            throw std::runtime_error("SAGWithEndpoints constructor: non-valid two-word");
+            throw std::runtime_error("SAGWithEndpoints constructor: non-valid double-occurrence-word");
         }
         cyclic_order.emplace(vertex, ECyc(vertex, transversal_a.at(vertex), transversal_b.at(vertex)));
     }

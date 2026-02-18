@@ -31,9 +31,9 @@ public:
 };
 
 template<typename TW>
-class ITwoWord {
+class IDoubleOccurrenceWord {
 public:
-    virtual ~ITwoWord() = default;
+    virtual ~IDoubleOccurrenceWord() = default;
     virtual bool operator==(const TW& other) const = 0;
     virtual std::size_t GetSize() const = 0;
     virtual std::vector<size_t> ConvertToVector() const = 0;

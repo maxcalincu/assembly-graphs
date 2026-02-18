@@ -69,7 +69,7 @@ class FilteredSAGGenerator {
     bool exhausted = false;
     size_t n, min_sub_word;
 
-    std::vector<size_t> two_word, left_bound;
+    std::vector<size_t> do_word, left_bound;
     std::vector<std::pair<size_t, size_t>> appearances;
     std::set<size_t> unpaired_vertices;
 

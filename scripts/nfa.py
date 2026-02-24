@@ -197,7 +197,7 @@ def nfa_intersection(nfa_a: NFA, nfa_b: NFA):
     while bfs_queue:
         state_a, state_b, ctx = bfs_queue.popleft()
 
-        if MAX_DEPTH is not None and len(ctx.word) > MAX_DEPTH:
+        if len(ctx.word) > MAX_DEPTH:
             raise RuntimeError("max_depth reached")
         
         if state_a.final and state_b.final and len(ctx.word) > 0:
@@ -211,7 +211,7 @@ def nfa_intersection(nfa_a: NFA, nfa_b: NFA):
             for transition_b in transitions_b:
 
                 if transition_a.letter != transition_b.letter:
-                    return None
+                    continue
                 
                 new_ctx = update_context(
                     transition_a=transition_a,

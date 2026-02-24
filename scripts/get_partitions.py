@@ -156,8 +156,8 @@ if __name__ == "__main__":
             def check(partition: Partition, partition_type: str) -> bool:
                 if check_anomaly_partition(partition):
                     data[key][partition_type].append({
-                        "forward": str(partition),
-                        "backward": invert_pattern(str(partition))
+                        "+": str(partition),
+                        "-": invert_pattern(str(partition))
                     })
                     return True
                 return False

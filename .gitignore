@@ -2,6 +2,7 @@ build/
 junk/
 *.ipynb
 *.json
+!scripts/partitions.json
 .cache/
 scripts/*.svg
 scripts/*.ipynb

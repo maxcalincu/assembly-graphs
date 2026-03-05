@@ -40,13 +40,18 @@ class Partition:
     def is_ff(self):
         return not self._get_anomaly(self.forward) and not self._get_anomaly(self.backward)
     
+    @property
+    def get_n(self):
+        return sum(len(block._pattern) for block in self.forward)
+
     def get_oc_pattern(self) -> Tuple[str, str]:
         return (
             ''.join(block.get_oc_pattern() for block in self.forward),
             ''.join(block.get_oc_pattern() for block in self.backward)
         )
     
-    def get_odd_z_pattern(self) -> Tuple[str, str]:
+    def get_odd_z_positions(self) -> Tuple[list[int], list[int]]:
+
         def get_z_positions(blocks: list[Block]) -> list[int]:
             result = []
             location = 0
@@ -62,14 +67,39 @@ class Partition:
         forward_positions =  get_z_positions(self.forward)
         backward_positions = get_z_positions(self.backward)
 
-        forward_word =  ''.join(block._pattern for block in self.forward)
-        backward_word = ''.join(block._pattern for block in self.backward)
-
-        n = len(forward_word)
         return (
-            ''.join(forward_word[pos]  for pos in forward_positions  if n - 1 - pos not in backward_positions),
-            ''.join(backward_word[pos] for pos in backward_positions if n - 1 - pos not in forward_positions)
+            [pos for pos in forward_positions  if self.get_n - 1 - pos not in backward_positions],
+            [pos for pos in backward_positions if self.get_n - 1 - pos not in forward_positions]
         )
+
+    def get_word(self) -> Tuple[str, str]:
+        return (
+            ''.join(block._pattern for block in self.forward),
+            ''.join(block._pattern for block in self.backward)
+        )
+
+    def get_odd_z_pattern(self) -> Tuple[str, str]:
+        forward_positions, backward_positions =  self.get_odd_z_positions()
+        forward_word, backward_word = self.get_word()
+
+        return (
+            ''.join(forward_word[pos]  for pos in forward_positions ),
+            ''.join(backward_word[pos] for pos in backward_positions)
+        )
+
+    def get_closing_starts(self) -> Tuple[list[int], list[int]]:
+        def func(blocks: list[Block]) -> list[int]:
+            position = 0
+            result = []
+            for block in blocks:
+                if block.is_extend:
+                    break
+                if block.is_closing:
+                    result.append(position)
+                position += len(block._pattern)
+            return result
+
+        return (func(self.forward), func(self.backward))
 
 def get_partitions(
         anomaly_forward: Block | None = None, 
@@ -84,13 +114,13 @@ def get_partitions(
 def min_depth(pattern: str) -> int:
     return min(i - 2 * pattern[:i].count('2') for i in range(len(pattern) + 1))      
 
-def check_anomaly_partition(anomaly: Partition) -> bool:
-    odd_z_forward, odd_z_backward = anomaly.get_odd_z_pattern()
-    if min_depth(odd_z_forward) < 0 or min_depth(odd_z_backward) < 0:
+def check_anomaly_partition(partition: Partition) -> bool:
+    odd_z_pattern_forward, odd_z_pattern_backward = partition.get_odd_z_pattern()
+    if min_depth(odd_z_pattern_forward) < 0 or min_depth(odd_z_pattern_backward) < 0:
         return False
 
-    z_height_forward =  odd_z_forward.count('1') -  odd_z_forward.count('2')
-    z_height_backward = odd_z_backward.count('1') - odd_z_backward.count('2')
+    z_height_forward =  odd_z_pattern_forward.count('1') -  odd_z_pattern_forward.count('2')
+    z_height_backward = odd_z_pattern_backward.count('1') - odd_z_pattern_backward.count('2')
     
     if z_height_forward%2 or z_height_backward%2:
         return False
@@ -98,17 +128,50 @@ def check_anomaly_partition(anomaly: Partition) -> bool:
     chunks_behind = z_height_backward//2
     chunks_after  = z_height_forward//2
 
-    oc_forward, oc_backward = anomaly.get_oc_pattern()
+    oc_forward, oc_backward = partition.get_oc_pattern()
     oc_height_forward =  oc_forward.count('1')  - oc_forward.count('2')
     oc_height_backward = oc_backward.count('1') - oc_backward.count('2')
 
-    return (
+    if not (
         oc_height_forward  == 2 * chunks_after - 3 * chunks_behind and
         oc_height_backward == 2 * chunks_behind - 3 * chunks_after and
 
         min_depth(oc_forward) + 3 * chunks_behind + 1 >= 0 and
         min_depth(oc_backward) + 3 * chunks_after + 1 >= 0
-    )
+    ):
+        return False
+    
+    odd_z_pos_forward, odd_z_pos_backward = partition.get_odd_z_positions()
+
+    def has_loop(positions: list[int], pattern: str) -> bool:
+        def check_prefix(i: int) -> bool:
+            return (
+                pattern[:i].count('1') == pattern[:i].count('2')
+                and positions[i] + 1 == positions[i + 1]
+                and pattern[i : i + 2] == '12'
+            )
+
+        return any(check_prefix(i) for i in range(len(positions) - 1))
+    
+    if (has_loop(odd_z_pos_forward, odd_z_pattern_forward) or 
+        has_loop(odd_z_pos_backward, odd_z_pattern_backward)):
+        return False
+        
+    closing_starts_forward, closing_starts_backward = partition.get_closing_starts() 
+
+    def has_proximity_issue() -> bool:
+        return any((
+            partition.get_n - 1 - start in odd_z_pos_backward and
+            partition.get_n - 2 - start in odd_z_pos_backward
+        ) for start in closing_starts_forward) or any((
+            partition.get_n - 1 - start in odd_z_pos_forward and
+            partition.get_n - 2 - start in odd_z_pos_forward
+        ) for start in closing_starts_backward)
+
+    if (has_proximity_issue()):
+        return False
+
+    return True
 
 
 if __name__ == "__main__":

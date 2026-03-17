@@ -42,9 +42,10 @@ def sag2svg(word: list, output_file: str) -> None:
         adjacency[word[i + 1]].add(word[i    ])
     
     # Step 2: BFS to assign vertex coordinates
-    visited = [word[0]]
-    vertex_coordinates = {word[0]: np.array([0.0, 0.0])}
-    queue = deque([word[0]])
+    start_letter = random.choice(word)
+    visited = [start_letter]
+    vertex_coordinates = {start_letter: np.array([0.0, 0.0])}
+    queue = deque([start_letter])
     
     def get_unoccupied_points(vertex):
         """Get 4 unoccupied integer neighbouring ``vertex`` in L1 distance order"""

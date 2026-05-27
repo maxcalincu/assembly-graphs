@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1450 400" width="1450" height="400">
+  <!-- White background -->
+  <rect width="1450" height="400" fill="white"/>
+
+  <!-- Definitions -->
+  <defs>
+    <style>
+      .line-dashed {
+        stroke: #333;
+        stroke-width: 2;
+        stroke-dasharray: 6,4;
+      }
+      .line-solid {
+        stroke: #333;
+        stroke-width: 2;
+      }
+      .circle-stroke {
+        fill: white;
+        stroke: #333;
+        stroke-width: 2;
+      }
+      .circle-text {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        fill: #333;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+    </style>
+  </defs>
+
+  <!-- ==================== ROW 1 (y=120) ==================== -->
+  <!-- Left ray (k=0): Dashed -->
+  <line x1="50" y1="120" x2="80" y2="120" class="line-solid"/>
+
+  <!-- k=1: 1 to 2, "1-2" -> Dashed -->
+  <line x1="116" y1="120" x2="146" y2="120" class="line-dashed"/>
+  <!-- k=2: 2 to 3, "2 3" -> Solid -->
+  <line x1="182" y1="120" x2="212" y2="120" class="line-solid"/>
+  <!-- k=3: 3 to 2, "3-2" -> Dashed -->
+  <line x1="248" y1="120" x2="278" y2="120" class="line-dashed"/>
+  <!-- k=4: 2 to 3, "2 3" -> Solid -->
+  <line x1="314" y1="120" x2="344" y2="120" class="line-solid"/>
+  <!-- k=5: 3 to 4, "3-4" -> Dashed -->
+  <line x1="380" y1="120" x2="410" y2="120" class="line-dashed"/>
+  <!-- k=6: 4 to 5, "4 5" -> Solid -->
+  <line x1="446" y1="120" x2="476" y2="120" class="line-solid"/>
+  <!-- k=7: 5 to 6, "5-6" -> Dashed -->
+  <line x1="512" y1="120" x2="542" y2="120" class="line-dashed"/>
+  <!-- k=8: 6 to 5, "6 5" -> Solid -->
+  <line x1="578" y1="120" x2="608" y2="120" class="line-solid"/>
+  <!-- k=9: 5 to 6, "5 6" -> Solid -->
+  <line x1="644" y1="120" x2="674" y2="120" class="line-solid"/>
+  <!-- k=10: 6 to 1, "6-1" -> Dashed -->
+  <line x1="710" y1="120" x2="740" y2="120" class="line-dashed"/>
+  <!-- k=11: 1 to 7, "1 7" -> Solid -->
+  <line x1="776" y1="120" x2="806" y2="120" class="line-solid"/>
+  <!-- k=12: 7 to 8, "7-8" -> Dashed -->
+  <line x1="842" y1="120" x2="872" y2="120" class="line-dashed"/>
+  <!-- k=13: 8 to 7, "8 7" -> Solid -->
+  <line x1="908" y1="120" x2="938" y2="120" class="line-solid"/>
+  <!-- k=14: 7 to 8, "7 8" -> Solid -->
+  <line x1="974" y1="120" x2="1004" y2="120" class="line-solid"/>
+  <!-- k=15: 8 to 4, "8-4" -> Dashed -->
+  <line x1="1040" y1="120" x2="1070" y2="120" class="line-dashed"/>
+  <!-- k=16: 4 to 9, "4 9" -> Solid -->
+  <line x1="1106" y1="120" x2="1136" y2="120" class="line-solid"/>
+  <!-- k=17: 9 to 10, "9-10" -> Dashed -->
+  <line x1="1172" y1="120" x2="1202" y2="120" class="line-dashed"/>
+  <!-- k=18: 10 to 9, "10 9" -> Solid -->
+  <line x1="1238" y1="120" x2="1268" y2="120" class="line-solid"/>
+  <!-- k=19: 9 to 10, "9 10" -> Solid -->
+  <line x1="1304" y1="120" x2="1334" y2="120" class="line-solid"/>
+
+  <!-- Circles Row 1 -->
+  <!-- j=0: 1 -->
+  <circle cx="98" cy="120" r="18" class="circle-stroke"/>
+  <text x="98" y="120" class="circle-text">1</text>
+  <!-- j=1: 2 -->
+  <circle cx="164" cy="120" r="18" class="circle-stroke"/>
+  <text x="164" y="120" class="circle-text">2</text>
+  <!-- j=2: 3 -->
+  <circle cx="230" cy="120" r="18" class="circle-stroke"/>
+  <text x="230" y="120" class="circle-text">3</text>
+  <!-- j=3: 2 -->
+  <circle cx="296" cy="120" r="18" class="circle-stroke"/>
+  <text x="296" y="120" class="circle-text">2</text>
+  <!-- j=4: 3 -->
+  <circle cx="362" cy="120" r="18" class="circle-stroke"/>
+  <text x="362" y="120" class="circle-text">3</text>
+  <!-- j=5: 4 -->
+  <circle cx="428" cy="120" r="18" class="circle-stroke"/>
+  <text x="428" y="120" class="circle-text">4</text>
+  <!-- j=6: 5 -->
+  <circle cx="494" cy="120" r="18" class="circle-stroke"/>
+  <text x="494" y="120" class="circle-text">5</text>
+  <!-- j=7: 6 -->
+  <circle cx="560" cy="120" r="18" class="circle-stroke"/>
+  <text x="560" y="120" class="circle-text">6</text>
+  <!-- j=8: 5 -->
+  <circle cx="626" cy="120" r="18" class="circle-stroke"/>
+  <text x="626" y="120" class="circle-text">5</text>
+  <!-- j=9: 6 -->
+  <circle cx="692" cy="120" r="18" class="circle-stroke"/>
+  <text x="692" y="120" class="circle-text">6</text>
+  <!-- j=10: 1 -->
+  <circle cx="758" cy="120" r="18" class="circle-stroke"/>
+  <text x="758" y="120" class="circle-text">1</text>
+  <!-- j=11: 7 -->
+  <circle cx="824" cy="120" r="18" class="circle-stroke"/>
+  <text x="824" y="120" class="circle-text">7</text>
+  <!-- j=12: 8 -->
+  <circle cx="890" cy="120" r="18" class="circle-stroke"/>
+  <text x="890" y="120" class="circle-text">8</text>
+  <!-- j=13: 7 -->
+  <circle cx="956" cy="120" r="18" class="circle-stroke"/>
+  <text x="956" y="120" class="circle-text">7</text>
+  <!-- j=14: 8 -->
+  <circle cx="1022" cy="120" r="18" class="circle-stroke"/>
+  <text x="1022" y="120" class="circle-text">8</text>
+  <!-- j=15: 4 -->
+  <circle cx="1088" cy="120" r="18" class="circle-stroke"/>
+  <text x="1088" y="120" class="circle-text">4</text>
+  <!-- j=16: 9 -->
+  <circle cx="1154" cy="120" r="18" class="circle-stroke"/>
+  <text x="1154" y="120" class="circle-text">9</text>
+  <!-- j=17: 10 -->
+  <circle cx="1220" cy="120" r="18" class="circle-stroke"/>
+  <text x="1220" y="120" class="circle-text">10</text>
+  <!-- j=18: 9 -->
+  <circle cx="1286" cy="120" r="18" class="circle-stroke"/>
+  <text x="1286" y="120" class="circle-text">9</text>
+  <!-- j=19: 10 -->
+  <circle cx="1352" cy="120" r="18" class="circle-stroke"/>
+  <text x="1352" y="120" class="circle-text">10</text>
+
+
+  <!-- ==================== ROW 2 (y=280) ==================== -->
+  <!-- Left ray (k=0): Dashed -->
+  <line x1="50" y1="280" x2="80" y2="280" class="line-dashed"/>
+
+  <!-- k=1: 1 to 2, "1 2" -> Solid -->
+  <line x1="116" y1="280" x2="146" y2="280" class="line-solid"/>
+  <!-- k=2: 2 to 3, "2-3" -> Dashed -->
+  <line x1="182" y1="280" x2="212" y2="280" class="line-dashed"/>
+  <!-- k=3: 3 to 2, "3 2" -> Solid -->
+  <line x1="248" y1="280" x2="278" y2="280" class="line-solid"/>
+  <!-- k=4: 2 to 3, "2 3" -> Solid -->
+  <line x1="314" y1="280" x2="344" y2="280" class="line-solid"/>
+  <!-- k=5: 3 to 4, "3-4" -> Dashed -->
+  <line x1="380" y1="280" x2="410" y2="280" class="line-dashed"/>
+  <!-- k=6: 4 to 5, "4 5" -> Solid -->
+  <line x1="446" y1="280" x2="476" y2="280" class="line-solid"/>
+  <!-- k=7: 5 to 6, "5-6" -> Dashed -->
+  <line x1="512" y1="280" x2="542" y2="280" class="line-dashed"/>
+  <!-- k=8: 6 to 5, "6 5" -> Solid -->
+  <line x1="578" y1="280" x2="608" y2="280" class="line-solid"/>
+  <!-- k=9: 5 to 6, "5 6" -> Solid -->
+  <line x1="644" y1="280" x2="674" y2="280" class="line-solid"/>
+  <!-- k=10: 6 to 1, "6-1" -> Dashed -->
+  <line x1="710" y1="280" x2="740" y2="280" class="line-dashed"/>
+  <!-- k=11: 1 to 7, "1 7" -> Solid -->
+  <line x1="776" y1="280" x2="806" y2="280" class="line-solid"/>
+  <!-- k=12: 7 to 8, "7-8" -> Dashed -->
+  <line x1="842" y1="280" x2="872" y2="280" class="line-dashed"/>
+  <!-- k=13: 8 to 7, "8 7" -> Solid -->
+  <line x1="908" y1="280" x2="938" y2="280" class="line-solid"/>
+  <!-- k=14: 7 to 8, "7 8" -> Solid -->
+  <line x1="974" y1="280" x2="1004" y2="280" class="line-solid"/>
+  <!-- k=15: 8 to 4, "8-4" -> Dashed -->
+  <line x1="1040" y1="280" x2="1070" y2="280" class="line-dashed"/>
+  <!-- k=16: 4 to 9, "4 9" -> Solid -->
+  <line x1="1106" y1="280" x2="1136" y2="280" class="line-solid"/>
+  <!-- k=17: 9 to 10, "9-10" -> Dashed -->
+  <line x1="1172" y1="280" x2="1202" y2="280" class="line-dashed"/>
+  <!-- k=18: 10 to 9, "10 9" -> Solid -->
+  <line x1="1238" y1="280" x2="1268" y2="280" class="line-solid"/>
+  <!-- k=19: 9 to 10, "9 10" -> Solid -->
+  <line x1="1304" y1="280" x2="1334" y2="280" class="line-solid"/>
+
+  <!-- Circles Row 2 -->
+  <!-- j=0: 1 -->
+  <circle cx="98" cy="280" r="18" class="circle-stroke"/>
+  <text x="98" y="280" class="circle-text">1</text>
+  <!-- j=1: 2 -->
+  <circle cx="164" cy="280" r="18" class="circle-stroke"/>
+  <text x="164" y="280" class="circle-text">2</text>
+  <!-- j=2: 3 -->
+  <circle cx="230" cy="280" r="18" class="circle-stroke"/>
+  <text x="230" y="280" class="circle-text">3</text>
+  <!-- j=3: 2 -->
+  <circle cx="296" cy="280" r="18" class="circle-stroke"/>
+  <text x="296" y="280" class="circle-text">2</text>
+  <!-- j=4: 3 -->
+  <circle cx="362" cy="280" r="18" class="circle-stroke"/>
+  <text x="362" y="280" class="circle-text">3</text>
+  <!-- j=5: 4 -->
+  <circle cx="428" cy="280" r="18" class="circle-stroke"/>
+  <text x="428" y="280" class="circle-text">4</text>
+  <!-- j=6: 5 -->
+  <circle cx="494" cy="280" r="18" class="circle-stroke"/>
+  <text x="494" y="280" class="circle-text">5</text>
+  <!-- j=7: 6 -->
+  <circle cx="560" cy="280" r="18" class="circle-stroke"/>
+  <text x="560" y="280" class="circle-text">6</text>
+  <!-- j=8: 5 -->
+  <circle cx="626" cy="280" r="18" class="circle-stroke"/>
+  <text x="626" y="280" class="circle-text">5</text>
+  <!-- j=9: 6 -->
+  <circle cx="692" cy="280" r="18" class="circle-stroke"/>
+  <text x="692" y="280" class="circle-text">6</text>
+  <!-- j=10: 1 -->
+  <circle cx="758" cy="280" r="18" class="circle-stroke"/>
+  <text x="758" y="280" class="circle-text">1</text>
+  <!-- j=11: 7 -->
+  <circle cx="824" cy="280" r="18" class="circle-stroke"/>
+  <text x="824" y="280" class="circle-text">7</text>
+  <!-- j=12: 8 -->
+  <circle cx="890" cy="280" r="18" class="circle-stroke"/>
+  <text x="890" y="280" class="circle-text">8</text>
+  <!-- j=13: 7 -->
+  <circle cx="956" cy="280" r="18" class="circle-stroke"/>
+  <text x="956" y="280" class="circle-text">7</text>
+  <!-- j=14: 8 -->
+  <circle cx="1022" cy="280" r="18" class="circle-stroke"/>
+  <text x="1022" y="280" class="circle-text">8</text>
+  <!-- j=15: 4 -->
+  <circle cx="1088" cy="280" r="18" class="circle-stroke"/>
+  <text x="1088" y="280" class="circle-text">4</text>
+  <!-- j=16: 9 -->
+  <circle cx="1154" cy="280" r="18" class="circle-stroke"/>
+  <text x="1154" y="280" class="circle-text">9</text>
+  <!-- j=17: 10 -->
+  <circle cx="1220" cy="280" r="18" class="circle-stroke"/>
+  <text x="1220" y="280" class="circle-text">10</text>
+  <!-- j=18: 9 -->
+  <circle cx="1286" cy="280" r="18" class="circle-stroke"/>
+  <text x="1286" y="280" class="circle-text">9</text>
+  <!-- j=19: 10 -->
+  <circle cx="1352" cy="280" r="18" class="circle-stroke"/>
+  <text x="1352" y="280" class="circle-text">10</text>
+</svg>

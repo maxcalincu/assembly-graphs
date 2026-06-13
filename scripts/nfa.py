@@ -15,13 +15,19 @@ def invert_pattern(pattern: str) -> str:
         12 -> 12            & () -> ()
         122212 -> 121112    & ()))() -> ()((()
     """
-    if all(symbol in ['1', '2'] for symbol in pattern):
-        return ''.join('1' if symbol == '2' else '2' for symbol in pattern[::-1])
 
-    if all(symbol in ['(', ')'] for symbol in pattern):
-        return ''.join('(' if symbol == ')' else ')' for symbol in pattern[::-1])
+    flip_dict = {
+        "1": "2",
+        "2": "1",
+        "(": ")",
+        ")": "(",
+    }
 
-    raise ValueError("invert_pattern: invalid pattern")
+    if any(symbol not in flip_dict.keys() for symbol in pattern):
+        raise ValueError("invert_pattern: invalid pattern")
+
+    return ''.join(flip_dict[symbol] for symbol in pattern[::-1])
+
 
 @dataclass()
 class Block():

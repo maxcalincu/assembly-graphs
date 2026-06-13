@@ -4,6 +4,13 @@ from dataclasses import dataclass
 from typing import Tuple
 from nfa import Block, nfa_intersection, get_nfa_forward, get_nfa_backward, invert_pattern  
 import json
+from enum import Enum
+
+class PartitionType(Enum):
+    FF = 'ff'
+    TT = 'tt'
+    FTTF = 'ft_tf'
+    TFFT = 'TFFT'
 
 @dataclass
 class Partition:
@@ -114,7 +121,7 @@ def get_partitions(
 def min_depth(pattern: str) -> int:
     return min(i - 2 * pattern[:i].count('2') for i in range(len(pattern) + 1))      
 
-def check_anomaly_partition(partition: Partition) -> bool:
+def check_anomaly_partition(partition: Partition, partition_type: PartitionType) -> bool:
     odd_z_pattern_forward, odd_z_pattern_backward = partition.get_odd_z_pattern()
     if min_depth(odd_z_pattern_forward) < 0 or min_depth(odd_z_pattern_backward) < 0:
         return False
@@ -143,18 +150,21 @@ def check_anomaly_partition(partition: Partition) -> bool:
     
     odd_z_pos_forward, odd_z_pos_backward = partition.get_odd_z_positions()
 
-    def has_loop(positions: list[int], pattern: str) -> bool:
+    def check_for_loops(positions: list[int], pattern: str) -> bool:
         def check_prefix(i: int) -> bool:
             return (
                 pattern[:i].count('1') == pattern[:i].count('2')
                 and positions[i] + 1 == positions[i + 1]
                 and pattern[i : i + 2] == '12'
             )
+        
+        if partition_type == PartitionType.FTTF:
+            return False
 
         return any(check_prefix(i) for i in range(len(positions) - 1))
     
-    if (has_loop(odd_z_pos_forward, odd_z_pattern_forward) or 
-        has_loop(odd_z_pos_backward, odd_z_pattern_backward)):
+    if (check_for_loops(odd_z_pos_forward, odd_z_pattern_forward) or 
+        check_for_loops(odd_z_pos_backward, odd_z_pattern_backward)):
         return False
         
     closing_starts_forward, closing_starts_backward = partition.get_closing_starts() 
@@ -211,14 +221,14 @@ if __name__ == "__main__":
 
             key = f'{anomaly_forward}:{anomaly_backward}'
             data[key] = {
-                "tt": [],
-                "tf_ft": [],
-                "ft_tf": [],
+                PartitionType.TT.value:   [],
+                PartitionType.TFFT.value: [],
+                PartitionType.FTTF.value: [],
             }
 
-            def check(partition: Partition, partition_type: str) -> bool:
-                if check_anomaly_partition(partition):
-                    data[key][partition_type].append({
+            def check(partition: Partition, partition_type: PartitionType) -> bool:
+                if check_anomaly_partition(partition, partition_type):
+                    data[key][partition_type.value].append({
                         "+": str(partition),
                         "-": invert_pattern(str(partition))
                     })
@@ -226,12 +236,12 @@ if __name__ == "__main__":
                 return False
 
             for partition in tt:
-                check(partition=partition, partition_type='tt')
+                check(partition=partition, partition_type=PartitionType.TT)
 
             for partition_tf in tf:
                 for partition_ft in ft:
-                    check(partition=partition_tf + partition_ft, partition_type="tf_ft")
-                    check(partition=partition_ft + partition_tf, partition_type="ft_tf")
+                    check(partition=partition_tf + partition_ft, partition_type=PartitionType.TFFT)
+                    check(partition=partition_ft + partition_tf, partition_type=PartitionType.FTTF)
     
     with open("partitions.json", "w") as f:
         json.dump(data, f, sort_keys=True, indent=4)

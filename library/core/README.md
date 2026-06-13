@@ -1,8 +1,8 @@
 ## library/core
 
-[code overview](./docs/code.md)
+[code overview](../../docs/code.md)
 
-[tools overview](./docs/tools.md)
+[tools overview](../../docs/tools.md)
 
 ## Требования
 Чтобы успешно запустить проект требуется:
